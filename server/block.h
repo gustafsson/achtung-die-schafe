@@ -5,7 +5,7 @@
 
 #include <set>
 
-#define BLOCK_SIZE 600
+#define BLOCK_SIZE 6000000ll
 /**
   Describes a piece of the world with coordinates.
   */
