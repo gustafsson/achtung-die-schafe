@@ -102,27 +102,25 @@ Scene.prototype.addKurv = function(kurv) {
 
 Scene.prototype.draw = function() {
 	
-	//save current context status
-	context.save();
-	
-	//clean everything
-	context.fillRect(0, 0, context.canvas.width, context.canvas.height);
-	
 	//Reset the transformation matrix
 	context.setTransform(1, 0, 0, 1, 0, 0);
 	
+	//clean everything
+	context.clearRect(0, 0, context.canvas.width, context.canvas.height);
+
 	//Translate the whole scene according to the player's current location
 	context.translate(context.canvas.width/2 - playerX, context.canvas.height/2 - playerY)
 	
 	
 	for (var i=1; i<kurv_list.length;i++){
-		context.beginPath();	
-		for (var j=0; j<kurv_list[i].p.length;j++){
-			context.moveTo(kurv_list[i].p[j][0],kurv_list[i].p[j][1]);
-			context.strokeStyle = kurv_list[i].color;
-			context.lineTo(kurv_list[i].p[j][0],kurv_list[i].p[j][1]);
+		context.beginPath();
+		context.strokeStyle = kurv_list[i].color;
+		var p = kurv_list[i].p;
+		context.moveTo(p[0][0],p[0][1]);
+		for (var j=1; j<p.length;j++){
+			context.lineTo(p[j][0],p[j][1]);
 		}
-			context.stroke();
+		context.stroke();
 	}
 };
 
