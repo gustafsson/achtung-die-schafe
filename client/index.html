@@ -1,0 +1,96 @@
+<!DOCTYPE HTML>
+<html>
+  <head>
+    <style>
+      body {
+        margin: 0px;
+        padding: 0px;
+      }
+      #myCanvas {
+        border: 1px solid #9C9898;
+      }
+    </style>
+    <script>
+      function loadImages(sources, callback) {
+        var images = {};
+        var loadedImages = 0;
+        var numImages = 0;
+        // get num of sources
+        for(var src in sources) {
+          numImages++;
+        }
+        for(var src in sources) {
+          images[src] = new Image();
+          images[src].onload = function() {
+            if(++loadedImages >= numImages) {
+              callback(images);
+            }
+          };
+          images[src].src = sources[src];
+        }
+      }
+
+      window.onload = function(images) {
+        var canvas = document.getElementById("myCanvas");
+        var context = canvas.getContext("2d");
+
+        var sources = {
+          darthVader: "http://www.html5canvastutorials.com/demos/assets/darth-vader.jpg",
+          yoda: "http://www.html5canvastutorials.com/demos/assets/yoda.jpg"
+        };
+
+        loadImages(sources, function(images) {
+          context.drawImage(images.darthVader, 100, 30, 200, 137);
+          context.drawImage(images.yoda, 350, 55, 93, 104);
+        });
+      };
+
+
+    function WebSocketTest()
+    {
+      if ("WebSocket" in window)
+      {
+         // Let us open a web socket
+         //var ws = new WebSocket("ws://localhost:9998/echo");
+         var ws = new WebSocket("ws://localhost:39907");
+         ws.onerror = function(evt)
+         {
+            alert("error");
+         };
+         ws.onmessage = function (evt) 
+         {
+            alert("got stuff");
+            var received_msg = eval(evt.data);
+            alert("Message is received...");
+         };
+         ws.onclose = function()
+         { 
+            // websocket is closed.
+            alert("Connection is closed..."); 
+         };
+         ws.onopen = function()
+         {
+            // Web Socket is connected, send data using send()
+            ws.send("I'm in");
+         };
+      }
+      else
+      {
+         // The browser doesn't support WebSocket
+         alert("WebSocket NOT supported by your Browser!");
+      }
+    }
+    
+    function arrowUp()
+    {
+        ws.send("up");
+    }
+    </script>
+  </head>
+  <body>
+    <div id="sse">
+       <a href="javascript:WebSocketTest()">Run WebSocket</a>
+    </div>
+    <canvas id="myCanvas" width="578" height="200"></canvas>
+  </body>
+</html>

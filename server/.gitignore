@@ -1,0 +1,7 @@
+Makefile
+*.o
+achtung.log
+moc_*.cpp
+server
+*.pro.user
+ui_mainwindow.h
