@@ -36,7 +36,6 @@ pPlayer World::
 void World::
         timestep(float dt)
 {
-    float speed = 20000;
     float hiddenTime = .1;
     float timeBetweenGaps = 1;
 //    boost::unordered_map<Block,QString> patchDiffPerBlock;
@@ -49,8 +48,7 @@ void World::
         BOOST_FOREACH(const pPlayer& c, b->players)
         {
             Player& p = *c;
-            p.pos.x += dt*speed*std::cos(p.dir);
-            p.pos.y += dt*speed*std::sin(p.dir);
+            p.tick(dt);
 
             // Add to patch
             if (p.currentPatch)
@@ -95,6 +93,7 @@ void World::
                 static PatchId patchId = 0;
                 pPatch patch( new Patch() );
                 p.currentPatch = patch.get();
+                patch->rgba = p.rgba;
                 b->patches[ ++patchId ] = patch;
                 if (!blockDiff.isEmpty())
                     blockDiff += ",";

@@ -13,24 +13,19 @@ class Player
 public:
     Player(PlayerId id);
 
+    void tick(float dt);
+    void userData(QString data);
+
+    PlayerId id() { return id_; }
+    BoundingBox boundingBox();
+
     float dir; /// newpos = pos + speed*[cos(dir), sin(dir)]
     Position pos;
-    PlayerId id() { return id_; }
     unsigned ticksSinceHidden;
     Patch* currentPatch;
+    bool turningLeft, turningRight;
+    unsigned rgba;
 
-    BoundingBox boundingBox() {
-        BoundingBox bb;
-        bb.topLeft = pos;
-        bb.bottomRight = pos;
-        bb.topLeft.x -= PLAYER_CANVAS_WIDTH;
-        bb.topLeft.y -= PLAYER_CANVAS_HEIGHT;
-        bb.bottomRight.x += PLAYER_CANVAS_WIDTH;
-        bb.bottomRight.y += PLAYER_CANVAS_HEIGHT;
-        return bb;
-    }
-
-    void userData(QString data);
 private:
     PlayerId id_;
 };

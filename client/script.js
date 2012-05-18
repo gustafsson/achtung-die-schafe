@@ -32,12 +32,27 @@ function init(){
 			arrow = {left: 37, right: 39 }, $status = $('#status');
 		switch (keyCode) {
 		case arrow.left:
-			window.console.log('left!');
-			ws.send("left");
+			window.console.log('leftdown!');
+			ws.send("leftdown");
 		break;
 		case arrow.right:
-			window.console.log('right!');
-			ws.send("right");
+			window.console.log('rightdown!');
+			ws.send("rightdown");
+		break;
+		}
+	};
+	c.onkeyup = function(evt) {
+		//evt = evt || window.event;
+		var keyCode = evt.keyCode || evt.which,
+			arrow = {left: 37, right: 39 }, $status = $('#status');
+		switch (keyCode) {
+		case arrow.left:
+			window.console.log('leftup!');
+			ws.send("leftup");
+		break;
+		case arrow.right:
+			window.console.log('rightup!');
+			ws.send("rightup");
 		break;
 		}
 	};
