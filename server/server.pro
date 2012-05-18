@@ -29,6 +29,7 @@ HEADERS  += mainwindow.h \
     logger.h \
     ext/qtwebsocket/QtWebSocket/QWsSocket.h \
     ext/qtwebsocket/QtWebSocket/QWsServer.h \
-    position.h
+    position.h \
+    SendPlayerData.h
 
 FORMS    += mainwindow.ui

@@ -33,12 +33,12 @@ pPlayer World::
 }
 
 
-QString World::
+void World::
         timestep(float dt)
 {
-    float speed = 2000;
-    float hiddenTime = 0.1;
-    float timeBetweenGaps = 2;
+    float speed = 20000;
+    float hiddenTime = .1;
+    float timeBetweenGaps = 1;
 //    boost::unordered_map<Block,QString> patchDiffPerBlock;
 
     QString blockDiff;
@@ -63,8 +63,11 @@ QString World::
             float timeSinceHidden = p.ticksSinceHidden * dt;
 
             bool newPatch = false;
-            newPatch |= b->location() != Block::Location(p.pos);
-            newPatch |= timeSinceHidden >= hiddenTime && !p.currentPatch;
+
+            if (b->location() != Block::Location(p.pos))
+            {
+                newPatch = true;
+            }
 
             if (timeSinceHidden < hiddenTime)
             {
@@ -73,6 +76,8 @@ QString World::
             else if (timeSinceHidden < timeBetweenGaps)
             {
                 // Grow trail
+                if (!p.currentPatch)
+                    newPatch = true;
             }
             else
             {
@@ -97,7 +102,12 @@ QString World::
         //patchDiffPerBlock[ *b ] = blockDiff;
     }
 
-    return blockDiff;
+    BOOST_FOREACH(Players::value_type& p, players)
+    {
+        QString playerData = QString("({playerPosition: [%1, %2], newTrails: [%3]})").
+            arg(p.second->pos.x*0.01f).arg(p.second->pos.y*0.01f).arg(blockDiff);
+        sender->sendPlayerData(p.first, playerData);
+    }
 }
 
 

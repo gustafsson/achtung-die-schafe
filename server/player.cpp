@@ -12,9 +12,9 @@ void Player::userData(QString data)
 {
     // TODO add "alive" flag
     if (data == "left")
-        this->dir += 0.1;
-    if (data == "right")
         this->dir -= 0.1;
+    if (data == "right")
+        this->dir += 0.1;
 }
 
 
