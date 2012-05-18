@@ -147,7 +147,6 @@ function WebSocketTest()
 	 };
 	 ws.onmessage = function (evt) 
 	 {
-		//window.console.log("got stuff");
 		received_msg = eval(evt.data);
 		
 		//update player position
@@ -162,13 +161,10 @@ function WebSocketTest()
 			else{
 				scene.addKurv(new Kurv(received_msg.newTrails[i]));
 			}
-			//TODO remember to handle player's position
 			
 		}
-		//TODO draw scene if everything is ready
 		scene.draw();
 		ws.send("");
-		//window.console.log("Message is received...");
 	 };
 	 ws.onclose = function()
 	 { 

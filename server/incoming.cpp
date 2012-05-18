@@ -33,7 +33,8 @@ Incoming::Incoming(quint16 port, QObject* parent)
     }
     else
     {
-        Logger::logMessage( "Server is listening port " + QString::number(port) );
+        Logger::logMessage( QString("Server is listening on port %1 at all TCP devices")
+            .arg(QString::number(port)) );
     }
     connect(server, SIGNAL(newConnection()), this, SLOT(onClientConnection()));
 }
@@ -47,6 +48,7 @@ Incoming::~Incoming()
 
 void Incoming::sendPlayerData(PlayerId id, QString data)
 {
+    Logger::logMessage(QString("Server to player %2: %1").arg(data).arg(id));
     clients[ id ]->write( data );
 }
 
@@ -84,9 +86,8 @@ void Incoming::onDataReceived(QString data)
     if (data.isEmpty())
         return;
 
-    Logger::logMessage( QString("Got stuff: %1").arg( data ));
-
     PlayerId id = clients_reverse[ socket ];
+    Logger::logMessage( QString("Player %2: %1").arg( data ).arg(id));
     emit gotPlayerData(id, data);
 }
 
@@ -109,7 +110,7 @@ void Incoming::onClientDisconnection()
 
     socket->deleteLater();
 
-    Logger::logMessage("Client disconnected");
+    Logger::logMessage(QString("Player %1 disconnected").arg(id));
 
     emit lostPlayer(id);
 }
