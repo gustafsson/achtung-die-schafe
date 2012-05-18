@@ -7,8 +7,9 @@
 QT       += core gui network
 
 TARGET = server
-TEMPLATE = app
-
+    win32:TEMPLATE = vcapp
+    win32:CONFIG -= embed_manifest_dll
+    win32:CONFIG += embed_manifest_exe
 
 SOURCES += main.cpp\
         mainwindow.cpp \
@@ -31,5 +32,8 @@ HEADERS  += mainwindow.h \
     ext/qtwebsocket/QtWebSocket/QWsServer.h \
     position.h \
     SendPlayerData.h
+
+INCLUDEPATH += C:\Users\fatcomp\Reep\sonicawe\winlib
+
 
 FORMS    += mainwindow.ui

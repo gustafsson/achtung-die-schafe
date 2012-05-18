@@ -1,5 +1,4 @@
 
-var center=[0,0];
 var height;
 var width;
 var c;
@@ -8,11 +7,16 @@ ws=false;
 var scene;
 var received_msg; 
 kurv_list=[];
+offset=[0,0];
+playerX=400;
+playerY=300;
 
 function init(){
 	c=document.getElementById("myCanvas");
 	context=c.getContext("2d");
-
+	
+	loadImage();
+	
 	scene = new Scene(context);
 
 	context.lineWidth=10;
@@ -20,7 +24,7 @@ function init(){
 
 	height = c.height;
 	width = c.width;
-	center=[width/2,height/2];
+	offset=[width/2,height/2];
 	
 	c.onkeydown = function(evt) {
 		//evt = evt || window.event;
@@ -38,10 +42,29 @@ function init(){
 		}
 	};
 	
-	c.addEventListener("mousedown", mouseDown, false);	
 }
 
-function mouseDown(){
+function loadImage(){
+    var request = new XMLHttpRequest();
+    request.open("GET", "achtung.jpg", true);
+    request.onreadystatechange = function(){
+        if (request.readyState == 4) { // Makes sure the document is ready to parse.
+            if (request.status == 200) { // Makes sure it's found the file.
+                	var imageObj = new Image();
+					imageObj.onload = function(){
+						context.drawImage(this, -240, -80);
+					};
+					
+					imageObj.src = "achtung.jpg";
+            }
+        }
+    };
+    request.send(null);
+}
+
+function startGame(){
+		context.clearRect(0, 0, c.width, c.height);
+		c.focus();
 		WebSocketTest();
 }
 
@@ -58,16 +81,31 @@ function Scene(context) {
 
 Scene.prototype.addKurv = function(kurv) {
 		kurv_list[kurv.id] = kurv;
-		scene.draw_kurv(kurv.p, kurv.color);
 };
 
-Scene.prototype.draw_kurv = function(p,color) {
-	context.beginPath();
-	context.moveTo(p[0][0],p[0][1]);
-	context.strokeStyle = '#ff0000';
-	for(var i = 0; i < p.length; i++){
-		context.lineTo(p[i][0],p[i][1]);
-		context.stroke();
+Scene.prototype.draw = function() {
+	
+	//save current context status
+	context.save();
+	
+	//clean everything
+	context.fillRect(0, 0, context.canvas.width, context.canvas.height);
+	
+	//Reset the transformation matrix
+	context.setTransform(1, 0, 0, 1, 0, 0);
+	
+	//Translate the whole scene according to the player's current location
+	context.translate(context.canvas.width/2 - playerX, context.canvas.height/2 - playerY)
+	
+	
+	for (var i=1; i<kurv_list.length;i++){
+		context.beginPath();	
+		for (var j=0; j<kurv_list[i].p.length;j++){
+			context.moveTo(kurv_list[i].p[j][0],kurv_list[i].p[j][1]);
+			context.strokeStyle = kurv_list[i].color;
+			context.lineTo(kurv_list[i].p[j][0],kurv_list[i].p[j][1]);
+		}
+			context.stroke();
 	}
 };
 
@@ -76,7 +114,7 @@ Scene.prototype.getKurv = function(id) {
 };
 
 Scene.prototype.append_kurv = function(id,p) {
-	kurv_list[id].p = getKurv(id).p.concact(p);
+	kurv_list[id].p = scene.getKurv(id).p.concat(p);
 };
 
 function WebSocketTest()
@@ -85,7 +123,7 @@ function WebSocketTest()
   {
 	 // Let us open a web socket
 	 //var ws = new WebSocket("ws://localhost:9998/echo");
-	 ws = new WebSocket("ws://82.115.206.12:10001");
+	 ws = new WebSocket("ws://82.115.206.11:10001");
 	 ws.onerror = function(evt)
 	 {
 		window.console.log("error");
@@ -94,15 +132,24 @@ function WebSocketTest()
 	 {
 		//window.console.log("got stuff");
 		received_msg = eval(evt.data);
+		
+		//update player position
+		playerX = received_msg.playerPosition[0];
+		playerY = received_msg.playerPosition[1];
+		
 		//context.clear();
 		for (var i=0;i<received_msg.newTrails.length;i++){
-			if (scene.getKurv(received_msg.newTrails[i])) {
+			if (scene.getKurv(received_msg.newTrails[i].id)) {
 				scene.append_kurv(received_msg.newTrails[i].id,received_msg.newTrails[i].p);
 			}
 			else{
 				scene.addKurv(new Kurv(received_msg.newTrails[i]));
 			}
+			//TODO remember to handle player's position
+			
 		}
+		//TODO draw scene if everything is ready
+		scene.draw();
 		ws.send("");
 		//window.console.log("Message is received...");
 	 };

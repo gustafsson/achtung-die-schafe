@@ -3,8 +3,8 @@
 Player::Player(PlayerId id)
 :   dir(0), ticksSinceHidden(0), currentPatch(0), id_(id)
 {
-    pos.x = 0;
-    pos.y = 0;
+    pos.x = 400;
+    pos.y = 300;
 }
 
 

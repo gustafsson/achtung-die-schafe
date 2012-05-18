@@ -64,6 +64,9 @@ void World::
 
             bool newPatch = false;
 
+            Block::Location loc = b->location();
+            Block::Location loc2 =  Block::Location(p.pos);
+
             if (b->location() != Block::Location(p.pos))
             {
                 newPatch = true;
