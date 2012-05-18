@@ -60,6 +60,7 @@ function init(){
 }
 
 function loadImage(){
+    try {
     var request = new XMLHttpRequest();
     request.open("GET", "achtung.jpg", true);
     request.onreadystatechange = function(){
@@ -75,6 +76,7 @@ function loadImage(){
         }
     };
     request.send(null);
+    } catch (err) {}
 }
 
 function startGame(){
