@@ -4,8 +4,10 @@ var height;
 var width;
 var c;
 var context;
-var ws;
+ws=false;
 var scene;
+var received_msg; 
+kurv_list=[];
 
 function init(){
 	c=document.getElementById("myCanvas");
@@ -19,16 +21,6 @@ function init(){
 	height = c.height;
 	width = c.width;
 	center=[width/2,height/2];
-
-	var p = [center[0],center[1]];
-	for (j = 1; j < 100; j++) {
-		p[j] = [center[0]+j,center[1]+j];
-	}
-	scene.addKurv(new Kurv(1,p,'#FF0000'));
-	for (j = 1; j < 100; j++) {
-		p[j] = [center[0]+100+j,center[1]];
-	}
-	scene.addKurv(new Kurv(1,p,'#00FF00'));
 	
 	c.onkeydown = function(evt) {
 		//evt = evt || window.event;
@@ -53,11 +45,11 @@ function mouseDown(){
 		WebSocketTest();
 }
 
-function Kurv(id, p, color) {
+function Kurv(trail) {
   // Constructor for new sausages
-  this.id = id;
-  this.p = p;
-  this.color = color || '#AAAAAA';
+  this.id = trail.id;
+  this.p = trail.p;
+  this.color = trail.color;
 }
 
 function Scene(context) {
@@ -65,36 +57,54 @@ function Scene(context) {
 }
 
 Scene.prototype.addKurv = function(kurv) {
-		this.kurv = kurv;
+		kurv_list[kurv.id] = kurv;
 		scene.draw_kurv(kurv.p, kurv.color);
 };
 
 Scene.prototype.draw_kurv = function(p,color) {
 	context.beginPath();
 	context.moveTo(p[0][0],p[0][1]);
-	context.strokeStyle = color;
+	context.strokeStyle = '#ff0000';
 	for(var i = 0; i < p.length; i++){
 		context.lineTo(p[i][0],p[i][1]);
 		context.stroke();
 	}
 };
 
+Scene.prototype.getKurv = function(id) {
+	return kurv_list[id];
+};
+
+Scene.prototype.append_kurv = function(id,p) {
+	kurv_list[id].p = getKurv(id).p.concact(p);
+};
+
 function WebSocketTest()
 {
-  if ("WebSocket" in window)
+  if ("WebSocket" in window || !ws)
   {
 	 // Let us open a web socket
-	 //ws = new WebSocket("ws://82.115.206.12:10001");
-	 ws = new WebSocket("ws://localhost:10001");
+	 //var ws = new WebSocket("ws://localhost:9998/echo");
+	 ws = new WebSocket("ws://82.115.206.12:10001");
 	 ws.onerror = function(evt)
 	 {
 		window.console.log("error");
 	 };
 	 ws.onmessage = function (evt) 
 	 {
-		window.console.log("got stuff");
-		var received_msg = eval(evt.data);
-		window.console.log("Message is received...");
+		//window.console.log("got stuff");
+		received_msg = eval(evt.data);
+		//context.clear();
+		for (var i=0;i<received_msg.newTrails.length;i++){
+			if (scene.getKurv(received_msg.newTrails[i])) {
+				scene.append_kurv(received_msg.newTrails[i].id,received_msg.newTrails[i].p);
+			}
+			else{
+				scene.addKurv(new Kurv(received_msg.newTrails[i]));
+			}
+		}
+		ws.send("");
+		//window.console.log("Message is received...");
 	 };
 	 ws.onclose = function()
 	 { 
