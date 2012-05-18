@@ -137,8 +137,10 @@ function WebSocketTest()
   if ("WebSocket" in window || !ws)
   {
 	 // Let us open a web socket
-	 //var ws = new WebSocket("ws://localhost:9998/echo");
-	 ws = new WebSocket("ws://82.115.206.11:10001");
+	 ws = new WebSocket("ws://localhost:10001");
+	 //ws = new WebSocket("ws://82.115.206.11:10001");
+	 //ws = new WebSocket("ws://82.115.206.12:10001");
+
 	 ws.onerror = function(evt)
 	 {
 		window.console.log("error");
