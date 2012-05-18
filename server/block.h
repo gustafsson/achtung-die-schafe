@@ -3,11 +3,9 @@
 
 #include "player.h"
 
-#include <boost/unordered_map.hpp>
-#include <vector>
+#include <set>
 
-struct RGBA { char R,G,B,A; };
-
+#define BLOCK_SIZE 600
 /**
   Describes a piece of the world with coordinates.
   */
@@ -20,14 +18,27 @@ public:
         typedef long T;
 
         Location(T x, T y);
+        Location(Position p);
 
-        T x() { return x_; }
-        T y() { return y_; }
-        std::size_t hash() { return hash_; }
+        T x() const { return x_; }
+        T y() const { return y_; }
+        std::size_t hash() const { return hash_; }
 
-        Player::Position getPosition() { Player::Position p; p.x = x_; p.y = y_; return p; }
+        BoundingBox boundingBox() {
+            BoundingBox bb;
+            bb.topLeft.x = x_*BLOCK_SIZE;
+            bb.topLeft.y = y_*BLOCK_SIZE;
+            bb.bottomRight.x = (x_+1)*BLOCK_SIZE;
+            bb.bottomRight.y = (y_+1)*BLOCK_SIZE;
+            return bb;
+        }
+
         bool operator==(const Location& b) const {
             return x_ == b.x_ && y_ == b.y_;
+        }
+
+        bool operator!=(const Location& b) const {
+            return ! (*this == b);
         }
 
     private:
@@ -37,15 +48,22 @@ public:
 
     Block(const Location& location) : location_(location) {}
 
-    typedef boost::unordered_map<Player::PlayerId, pPlayer> Players;
+    typedef std::set<pPlayer> Players;
 
     Players players;
 
-    std::vector<RGBA> image;
+    Patches patches;
+    Location location() { return location_; }
 
 private:
     Location location_;
 };
+typedef boost::shared_ptr<Block> pBlock;
 
+
+inline size_t hash_value(const Block::Location& l)
+{
+    return l.hash();
+}
 
 #endif // BLOCK_H

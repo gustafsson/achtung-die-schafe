@@ -18,7 +18,8 @@ SOURCES += main.cpp\
     incoming.cpp \
     logger.cpp \
     ext/qtwebsocket/QtWebSocket/QWsSocket.cpp \
-    ext/qtwebsocket/QtWebSocket/QWsServer.cpp
+    ext/qtwebsocket/QtWebSocket/QWsServer.cpp \
+    position.cpp
 
 HEADERS  += mainwindow.h \
     world.h \
@@ -27,6 +28,7 @@ HEADERS  += mainwindow.h \
     incoming.h \
     logger.h \
     ext/qtwebsocket/QtWebSocket/QWsSocket.h \
-    ext/qtwebsocket/QtWebSocket/QWsServer.h
+    ext/qtwebsocket/QtWebSocket/QWsServer.h \
+    position.h
 
 FORMS    += mainwindow.ui

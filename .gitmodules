@@ -1,0 +1,4 @@
+[submodule "server/ext/qtwebsocket"]
+	path = server/ext/qtwebsocket
+	url = git@github.com:gustafsson/qtwebsocket-fork.git
+

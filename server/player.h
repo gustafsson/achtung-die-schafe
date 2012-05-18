@@ -1,27 +1,40 @@
 #ifndef PLAYER_H
 #define PLAYER_H
 
-#include <boost/shared_ptr.hpp>
+#include "position.h"
+
+#define PLAYER_CANVAS_WIDTH 800
+#define PLAYER_CANVAS_HEIGHT 600
+
+typedef long long PlayerId;
 
 class Player
 {
 public:
-    class Position
+    Player(PlayerId id) : dir(0), ticksSinceHidden(0), currentPatch(0), id_(id)
     {
-    public:
-        typedef long long T;
-        // With 2 decimals below pixel resolution
-        T x, y;
-    };
-
-    typedef long long PlayerId;
-
-    Player(PlayerId id) : id_(id) {}
+        pos.x = 0;
+        pos.y = 0;
+    }
 
     float dir; /// newpos = pos + speed*[cos(dir), sin(dir)]
     Position pos;
     PlayerId id() { return id_; }
+    unsigned ticksSinceHidden;
+    Patch* currentPatch;
 
+    BoundingBox boundingBox() {
+        BoundingBox bb;
+        bb.topLeft = pos;
+        bb.bottomRight = pos;
+        bb.topLeft.x -= PLAYER_CANVAS_WIDTH;
+        bb.topLeft.y -= PLAYER_CANVAS_HEIGHT;
+        bb.bottomRight.x += PLAYER_CANVAS_WIDTH;
+        bb.bottomRight.y += PLAYER_CANVAS_HEIGHT;
+        return bb;
+    }
+
+    void userData(QString data);
 private:
     PlayerId id_;
 };

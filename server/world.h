@@ -6,8 +6,8 @@
 // boost
 #include <boost/unordered_map.hpp>
 
-typedef boost::unordered_map<Block::Location, Block> WorldMap;
-
+typedef boost::unordered_map<Block::Location, pBlock> WorldMap;
+typedef boost::unordered_map<PlayerId, pPlayer> Players;
 /**
   Describes all blocks in the world. Bluntly assuming this won't eat up all available ram.
   */
@@ -18,7 +18,15 @@ public:
 
     WorldMap worldMap;
 
-    void timestep();
+    pPlayer getRandomPlayer();
+    pPlayer findPlayer(PlayerId);
+    QString timestep(float);
+
+    void lostPlayer(PlayerId);
+    void newPlayer(PlayerId);
+
+    Players players;
+private:
 };
 
 #endif // WORLD_H
