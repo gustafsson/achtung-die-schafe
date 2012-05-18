@@ -42,8 +42,10 @@ public:
 class Patch
 {
 public:
+    Patch();
+
     std::vector<Position> pos;
-    unsigned rgba;
+    unsigned rgba, id;
 
     QString patchGrow(const Position& p);
     QString patchSerialize() const;

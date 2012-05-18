@@ -13,7 +13,8 @@ MainWindow::MainWindow(QWidget *parent) :
 {
     ui->setupUi(this);
 
-    quint16 port = 39907;
+    //quint16 port = 39907;
+    quint16 port = 10001;
     incoming = new Incoming(port, this);
 
     connect(incoming, SIGNAL(newPlayer(PlayerId)), SLOT(newPlayer(PlayerId)));
@@ -51,11 +52,13 @@ void MainWindow::gotPlayerData(PlayerId id, QString data)
 
 void MainWindow::timestep()
 {
-    QString data = world.timestep(10);
+    QString data = world.timestep(0.010);
 
     BOOST_FOREACH(Players::value_type& p, world.players)
     {
-        incoming->sendPlayerData(p.first, data);
+        QString playerData = QString("({playerPosition: [%1, %2], newTrails: [%3]})").
+            arg(p.second->pos.x*0.01f).arg(p.second->pos.y*0.01f).arg(data.isEmpty()?"''":data);
+        incoming->sendPlayerData(p.first, playerData);
     }
 
     QTimer::singleShot(10, this, SLOT(timestep()));

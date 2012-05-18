@@ -11,11 +11,7 @@ typedef long long PlayerId;
 class Player
 {
 public:
-    Player(PlayerId id) : dir(0), ticksSinceHidden(0), currentPatch(0), id_(id)
-    {
-        pos.x = 0;
-        pos.y = 0;
-    }
+    Player(PlayerId id);
 
     float dir; /// newpos = pos + speed*[cos(dir), sin(dir)]
     Position pos;
