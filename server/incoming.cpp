@@ -81,6 +81,9 @@ void Incoming::onDataReceived(QString data)
     if (socket == 0)
         return;
 
+    if (data.isEmpty())
+        return;
+
     Logger::logMessage( QString("Got stuff: %1").arg( data ));
 
     PlayerId id = clients_reverse[ socket ];
