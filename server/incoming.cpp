@@ -73,6 +73,7 @@ void Incoming::onClientConnection()
 
     Logger::logMessage(QString("Client connected from %1").arg(clientSocket->peerAddress().toString()));
 
+    sendPlayerData( global_id, QString("({clientPlayerId:%1})").arg(global_id));
     emit newPlayer( global_id );
 }
 

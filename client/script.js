@@ -8,10 +8,14 @@ function init(){
 
 function startGame(){
     game.start();
+    var playbutton = document.getElementById("playbutton");
+    playbutton.style.display = "none";
 }
 
 
 function Game(scene) {
+    this.serverMessage = document.getElementById("serverMessage");
+    this.serverMessage.innerHTML = "Achtung, die Schafe!";
     this.scene = scene;
 
 	loadImage();
@@ -78,13 +82,6 @@ Game.prototype.start = function() {
 	    }
     };
 
-  /*  	 window.console.log("running pathX");
-    this.scene.context.beginPath();
-    this.scene.context.strokeStyle = "#FF0000";
-    this.scene.context.moveTo(0,0);
-    this.scene.context.lineTo(200,100);
-    this.scene.context.stroke();
-*/
 	this.ServerConnection();
 
 };
@@ -101,6 +98,7 @@ Game.prototype.ServerConnection = function() {
 	 //this.server = new WebSocket("ws://82.115.206.12:10001");
      var server = this.server;
      var scene = this.scene;
+     var game = this;
      
 	 this.server.onerror = function(evt)
 	 {
@@ -108,46 +106,73 @@ Game.prototype.ServerConnection = function() {
 	 };
 	 this.server.onmessage = function (evt) 
 	 {
+    	// game.serverMessage.innerHTML = evt.data;
+    	
 		var message = eval(evt.data);
-		
-		scene.cameraX = message.playerPosition[0];
-		scene.cameraY = message.playerPosition[1];
-		
-		for (var i=0;i<message.newTrails.length;i++)
-		{
-		    var trail = message.newTrails[i];
-		    if (0 === trail.length)
-		        continue;
 
-            var block = scene.getBlockOrCreate(trail.blockX, trail.blockY);
+
+		if (message.clientPlayerId !== undefined)
+		    scene.clientPlayerId = message.clientPlayerId;
+
+
+		if (message.players !== undefined)
+		    for (var i=0; i<message.players.length; ++i)
+		    {
+		        // TODO could use this information to update trails
+		        
+		        var msgplayer = message.players[i];
+		        if (scene.player_list[msgplayer.id] === undefined)
+        		    scene.player_list[msgplayer.id] = new Player(msgplayer.id, msgplayer.color);
+        		if (msgplayer.status == 'disconnected')
+        		{
+        		    delete(scene.player_list[msgplayer.id]);
+        		    continue;
+		        }
+		        
+		        var player = scene.player_list[msgplayer.id];
+		        player.pos = msgplayer.pos;
+		        player.status = msgplayer.status;
+		    }
+
+
+		if (message.newTrails !== undefined)
+		    for (var i=0; i<message.newTrails.length; i++)
+		    {
+		        var trail = message.newTrails[i];
+		        if (0 === trail.length)
+		            continue;
+
+                var block = scene.getBlockOrCreate(trail.blockX, trail.blockY);
+                
+                // addKurv and appendKurv will also render to the blocks off-screen target (but not to the displayed canvas on-screen)
+                var kurv = block.getKurv(trail.id);
+                var plotp;
+                var plotcolor;
+                if (kurv === undefined)
+                {
+				    plotp = block.addKurv(new Kurv(trail));
+				    plotcolor = trail.color;
+			    }
+                else 
+                {
+                    plotp = block.appendKurv(trail.id, trail.p);
+				    plotcolor = block.getKurv(trail.id).color;
+                }
+                
+                scene.blockPainter(trail.blockX, trail.blockY, function(ctx) {
+                    drawKurv(ctx, plotp, plotcolor);
+                });
+		    }
+
+
+        if (scene.clientPlayerId !== undefined && scene.player_list[scene.clientPlayerId] !== undefined)
+            scene.draw();
             
-            // addKurv and appendKurv will also render to the blocks off-screen target (but not to the displayed canvas on-screen)
-            var kurv = block.getKurv(trail.id);
-            var plotp;
-            var plotcolor;
-            if (kurv === undefined)
-            {
-				plotp = block.addKurv(new Kurv(trail));
-				plotcolor = trail.color;
-			}
-            else 
-            {
-                plotp = block.appendKurv(trail.id, trail.p);
-				plotcolor = block.getKurv(trail.id).color;
-            }
-            
-            for(var x = trail.blockX-1; x <= trail.blockX+1; ++x)
-                for(var y = trail.blockY-1; y <= trail.blockY+1; ++y)
-            {
-                drawKurv(scene.getBlockOrCreate(x,y).preRenderedContext, plotp, plotcolor);
-            }
-		}
-		
-		scene.draw();
 		server.send(""); // Not always necessary
 	 };
 	 this.server.onclose = function()
-	 { 
+	 {
+    	game.serverMessage.innerHTML = "Connection to server lost. Reload the page to try again";
 		window.console.log("Connection is closed..."); 
 	 };
 	 this.server.onopen = function()
@@ -229,10 +254,11 @@ function Scene(canvas) {
 	this.canvas = canvas;
 	this.context = canvas.getContext('2d');
 	this.blockSize = 400;
-	this.cameraX = 0;
-	this.cameraY = 0;
     this.scale = 1;
+    this.camera = [0, 0];
     this.blocks = [[]];
+    this.clientPlayerId = undefined;
+    this.player_list = [];
 
 	this.context.lineWidth=10;
 	this.context.lineCap="round";
@@ -252,25 +278,35 @@ Scene.prototype.draw = function() {
 	// Translate the whole scene according to the player's current location
 	this.context.translate(this.context.canvas.width/2, this.context.canvas.height/2);
 	this.context.scale(this.scale, this.scale);
-	this.context.translate(-this.cameraX, -this.cameraY);
+	var wantedPos = this.player_list[ this.clientPlayerId ].pos;
+	this.camera[0] = this.camera[0] + (wantedPos[0]-this.camera[0])*0.01;
+	this.camera[1] = this.camera[1] + (wantedPos[1]-this.camera[1])*0.01;
+	this.context.translate(-this.camera[0], -this.camera[1]);
 	
 	// Draw all prerendered image blocks
-	for (var x=Math.floor((this.cameraX - this.context.canvas.width/(2*this.scale))/this.blockSize);
-	         x<=Math.ceil((this.cameraX + this.context.canvas.width/(2*this.scale))/this.blockSize); x++)
-	for (var y=Math.floor((this.cameraY - this.context.canvas.height/(2*this.scale))/this.blockSize);
-	         y<=Math.ceil((this.cameraY + this.context.canvas.height/(2*this.scale))/this.blockSize); y++)
+	for (var x=Math.floor((this.camera[0] - this.context.canvas.width/(2*this.scale))/this.blockSize);
+	         x<=Math.ceil((this.camera[0] + this.context.canvas.width/(2*this.scale))/this.blockSize); x++)
+	for (var y=Math.floor((this.camera[1] - this.context.canvas.height/(2*this.scale))/this.blockSize);
+	         y<=Math.ceil((this.camera[1] + this.context.canvas.height/(2*this.scale))/this.blockSize); y++)
     {
         var block = this.getBlock(x,y);
         if (block === undefined)
             continue;
 
-        this.context.drawImage(block.preRendered, x*this.blockSize, y*this.blockSize, this.blockSize, this.blockSize);
+        this.context.drawImage(block.preRendered, x*this.blockSize, y*this.blockSize);
+    }
+
+    // Draw all players
+    for (var playeri in this.player_list)
+    {
+        var player = this.player_list[playeri];
+        player.render(this.context);
     }
 };
 
 
-Scene.prototype.getBlockCoordinates = function(x,y) {
-    return [Math.floor(x/this.blockSize), Math.floor(y/this.blockSize)];
+Scene.prototype.getBlockCoordinates = function(p) {
+    return [Math.floor(p[0]/this.blockSize), Math.floor(p[1]/this.blockSize)];
 }
 
 
@@ -299,3 +335,29 @@ Scene.prototype.getBlockOrCreate = function(x,y) {
     }
     return block;
 };
+
+
+Scene.prototype.blockPainter = function(X,Y,f) {
+    for(var x = X-1; x <= X+1; ++x)
+        for(var y = Y-1; y <= Y+1; ++y)
+    {
+        f(this.getBlockOrCreate(x,y).preRenderedContext);
+    }
+};
+
+
+function Player(id,color) {
+    this.pos = [0,0];
+    this.id = id;
+    this.color = color;
+    this.status = '';
+};
+
+
+Player.prototype.render = function(ctx) {
+	ctx.beginPath();
+	ctx.strokeStyle = this.color;
+    ctx.arc(this.pos[0], this.pos[1], 5, 0 , 2 * Math.PI, false);
+	ctx.fill();
+};
+

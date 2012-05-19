@@ -1,6 +1,7 @@
 #include "world.h"
 
 #include <QString>
+#include <QColor>
 
 #include <boost/foreach.hpp>
 #include <cmath>
@@ -122,11 +123,26 @@ void World::
         worldMap[location]->players.insert(p);
     }
 
+    QString playerPosData;
+
     BOOST_FOREACH(Players::value_type& p, players)
     {
-        QString playerData = QString("({playerPosition: [%1, %2], newTrails: [%3]})").
-            arg(p.second->pos.x*0.01f).arg(p.second->pos.y*0.01f).arg(blockDiff);
-        sender->sendPlayerData(p.first, playerData);
+        if (!playerPosData.isEmpty())
+            playerPosData += ",";
+
+        playerPosData += QString("{id:%1,pos:[%2,%3],status:'alive',color:'%4'}")
+            .arg(p.first)
+            .arg(p.second->pos.x*0.01f)
+            .arg(p.second->pos.y*0.01f)
+            .arg(QColor(p.second->rgba).name());
+    }
+
+    BOOST_FOREACH(Players::value_type& p, players)
+    {
+        QString individualData = QString("({players: [%1], newTrails: [%2]})")
+            .arg(playerPosData)
+            .arg(blockDiff);
+        sender->sendPlayerData(p.first, individualData);
     }
 }
 
