@@ -31,7 +31,7 @@ function Game(scene) {
                     if (request.status == 200) { // Makes sure it's found the file.
                         	var imageObj = new Image();
 					        imageObj.onload = function(){
-						        context.drawImage(this, -240, -80);
+						        context.drawImage(this, -640, -320);
 					        };
 					
 					        imageObj.src = "achtung.jpg";
