@@ -33,6 +33,9 @@ pPlayer World::
 
     BOOST_FOREACH(Players::value_type& pv, players)
     {
+        if (!pv.second->alive)
+            continue;
+
         Position::T d = dist2(pv.second->pos, p);
         if (d<D)
         {
