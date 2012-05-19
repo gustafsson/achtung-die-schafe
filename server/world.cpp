@@ -191,6 +191,9 @@ void World::
         }
     }
 
+    // Makes the algorithm unfair if killing one wolf but not both if they are two.
+    std::set<Player*> wolfsToKill;
+
     // Check for lone wolfs
     BOOST_FOREACH(Players::value_type& v, players)
     {
@@ -201,20 +204,29 @@ void World::
         // Find players near p.pos that is not p.
         p.alive = false;
         pPlayer n = getAlivePlayerNearest(p.pos);
+        p.alive = true;
         if (!n) // Not enough living players
             break;
-        p.alive = true;
         Position::T d = dist2(p.pos, n->pos);
 
         if (d>SHAFE_DISTANCE*SHAFE_DISTANCE)
         {
-            p.alive = false;
-            sender->sendPlayerData(p.id(), "({serverMessage:'Press space to restart',deathBySheep:true})");
+            wolfsToKill.insert(&p);
         }
         else if (d>WARNING_DISTANCE*WARNING_DISTANCE)
         {
-            sender->sendPlayerData(p.id(), "({serverMessage:'Press space to restart'})");
+            sender->sendPlayerData(p.id(), "({serverMessage:'Fight or you\\'ll fight the sheep!'})");
         }
+        else
+        {
+            sender->sendPlayerData(p.id(), "({serverMessage:'Steer with left and right arrows'})");
+        }
+    }
+
+    BOOST_FOREACH(Player* p, wolfsToKill)
+    {
+        p->alive = false;
+        sender->sendPlayerData(p->id(), "({serverMessage:'Press space to restart',deathBySheep:true})");
     }
 
     QString playerPosData;
