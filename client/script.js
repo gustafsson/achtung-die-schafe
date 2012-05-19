@@ -174,14 +174,14 @@ Game.prototype.ServerConnection = function() {
                     drawKurv(ctx, plotp, plotcolor);
                 });
 		    }
-
+		
 		if (message.deathBySheep !== undefined){
 			game.loadImage(scene.context,"deathBySheep.png",[171, 189]);
-	
 		}
 		
 		if (message.deathByWall !== undefined){
-		
+			scene.context.font = "bold 24px sans-serif";
+			scene.context.fillText("Straight in the wall... Press space to try again", 248, 43);
 		}		
 		
         if (scene.clientPlayerId !== undefined && scene.player_list[scene.clientPlayerId] !== undefined)
