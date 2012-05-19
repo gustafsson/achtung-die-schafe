@@ -15,7 +15,7 @@ function startGame(){
 
 function Game(scene) {
     this.serverMessage = document.getElementById("serverMessage");
-    this.serverMessage.innerHTML = "Achtung, die Schafe!";
+    this.serverMessage.innerHTML = "Achtung, die Schafe... Press space to start!";
     this.scene = scene;
     var context = this.scene.context;
 
