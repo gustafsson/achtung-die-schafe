@@ -163,6 +163,8 @@ void World::
     BOOST_FOREACH(Players::value_type& v, players)
     {
         Player& p = *v.second;
+        if (!p.alive)
+            continue;
 
         if (hasCollisions(p))
         {
@@ -268,6 +270,9 @@ void World::newPlayer(PlayerId id)
 
 bool World::hasCollisions(const Player& p)
 {
+    Position::T dirX = PLAYER_RADIUS * cos(p.dir);
+    Position::T dirY = PLAYER_RADIUS * sin(p.dir);
+
     Block::Location location(p.pos);
     for (Block::Location::T x = location.x()-1; x<=location.x()+1; ++x)
         for (Block::Location::T y = location.y()-1; y<=location.y()+1; ++y)
@@ -278,15 +283,31 @@ bool World::hasCollisions(const Player& p)
 
         BOOST_FOREACH(const Patches::value_type& pv, itr->second->patches)
         {
+            if (p.currentPatch == pv.second.get())
+                continue;
+
             Patch& patch = *pv.second;
             if (patch.bb.intersect(p.pos, PLAYER_RADIUS))
             {
                 for(unsigned n=0; n<patch.pos.size(); ++n)
                 {
-                    long long dx = patch.pos[n].x - p.pos.x;
-                    long long dy = patch.pos[n].y - p.pos.y;
+                    Position::T dx = patch.pos[n].x - p.pos.x;
+                    Position::T dy = patch.pos[n].y - p.pos.y;
 
-                    if (dx*dx+dy*dy < PLAYER_RADIUS*PLAYER_RADIUS)
+                    Position::T dot = dx*dirX + dy*dirY;
+                    if (dot <= 0)
+                    {
+                        // Don't bother with patches behind us (i.e our own patches)
+                        continue;
+                    }
+
+                    if (dx==0 && dy==0)
+                    {
+                        // self
+                        continue;
+                    }
+
+                    if (dx*dx + dy*dy < PLAYER_RADIUS*PLAYER_RADIUS)
                     {
                         return true;
                     }

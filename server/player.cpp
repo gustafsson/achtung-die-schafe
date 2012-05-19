@@ -23,7 +23,7 @@ Player::Player(PlayerId id)
 
 void Player::tick(float dt)
 {
-    float pixelsPerSecond = 170;
+    float pixelsPerSecond = 130;
     float speed = pixelsPerSecond*100;
 
     if (turningLeft)

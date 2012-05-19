@@ -41,7 +41,7 @@ public:
     {
         return
             topLeft.x <= p.x + margin &&
-            topLeft.y <= p.y + margin&&
+            topLeft.y <= p.y + margin &&
             bottomRight.x + margin > p.x &&
             bottomRight.y + margin > p.y;
     }

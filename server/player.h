@@ -3,9 +3,9 @@
 
 #include "position.h"
 
-#define PLAYER_CANVAS_WIDTH 800
-#define PLAYER_CANVAS_HEIGHT 600
-#define PLAYER_RADIUS 5
+#define PLAYER_CANVAS_WIDTH 800*100
+#define PLAYER_CANVAS_HEIGHT 600*100
+#define PLAYER_RADIUS 5*100
 
 typedef long long PlayerId;
 class World;
