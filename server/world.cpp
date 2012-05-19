@@ -41,10 +41,12 @@ void World::
 //    boost::unordered_map<Block,QString> patchDiffPerBlock;
 
     QString blockDiff;
+    Block::Players toreassign;
     BOOST_FOREACH(WorldMap::value_type&bv, worldMap)
     {
         pBlock& b = bv.second;
 
+        Block::Players toremove;
         BOOST_FOREACH(const pPlayer& c, b->players)
         {
             Player& p = *c;
@@ -62,12 +64,12 @@ void World::
 
             bool newPatch = false;
 
-            Block::Location loc = b->location();
-            Block::Location loc2 =  Block::Location(p.pos);
-
             if (b->location() != Block::Location(p.pos))
             {
-                newPatch = true;
+                toremove.insert(c);
+                toreassign.insert(c);
+                if (p.currentPatch)
+                    newPatch = true;
             }
 
             if (timeSinceHidden < hiddenTime)
@@ -101,7 +103,23 @@ void World::
             }
         }
 
+        while(!toremove.empty())
+        {
+            pPlayer p = *toremove.begin();
+            b->players.erase(p);
+            toremove.erase(p);
+        }
+
         //patchDiffPerBlock[ *b ] = blockDiff;
+    }
+
+    BOOST_FOREACH(const pPlayer& p, toreassign)
+    {
+        Block::Location location(p->pos);
+
+        if (worldMap.find(location) == worldMap.end())
+            worldMap[location] = pBlock(new Block(location));
+        worldMap[location]->players.insert(p);
     }
 
     BOOST_FOREACH(Players::value_type& p, players)

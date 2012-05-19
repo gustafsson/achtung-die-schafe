@@ -13,7 +13,8 @@ Block::Location::Location(T x, T y)
 
 
 Block::Location::Location(Position p)
-    : x_(p.x / BLOCK_SIZE), y_(p.y / BLOCK_SIZE)
+    : x_(p.x >= 0 ? p.x / BLOCK_SIZE : (p.x-BLOCK_SIZE+1) / BLOCK_SIZE),
+      y_(p.y >= 0 ? p.y / BLOCK_SIZE : (p.y-BLOCK_SIZE+1) / BLOCK_SIZE)
 {
     hash_ = 0;
     boost::hash_combine(hash_, x_);
