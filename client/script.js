@@ -180,8 +180,7 @@ Game.prototype.ServerConnection = function() {
 		}
 		
 		if (message.deathByWall !== undefined){
-			scene.context.font = "bold 24px sans-serif";
-			scene.context.fillText("Straight in the wall... Press space to try again", 248, 43);
+			game.serverMessage.innerHTML = "Straight into the wall... Press space to try again";
 		}		
 		
         if (scene.clientPlayerId !== undefined && scene.player_list[scene.clientPlayerId] !== undefined)
