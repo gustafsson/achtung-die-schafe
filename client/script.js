@@ -19,7 +19,7 @@ function Game(scene) {
     this.scene = scene;
     var context = this.scene.context;
 
-	this.loadImage(context,"achtung.jpg",[-640, -320]);
+	this.loadImage(context,"sheep.png",[-500, -320]);
     
 }
 
@@ -106,7 +106,8 @@ Game.prototype.ServerConnection = function() {
         return;
 
 	 //this.server = new WebSocket("ws://192.168.1.67:10001");
-	 this.server = new WebSocket("ws://82.115.206.11:10001");
+	 //this.server = new WebSocket("ws://82.115.206.11:10001");
+	 this.server = new WebSocket("ws://195.42.110.149:10001");
 	 //this.server = new WebSocket("ws://82.115.206.12:10001");
      var server = this.server;
      var scene = this.scene;
