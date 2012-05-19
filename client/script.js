@@ -383,8 +383,8 @@ Player.prototype.render = function(ctx) {
         ctx.arc(this.pos[0], this.pos[1], 5, 0 , 2 * Math.PI, false);
 	    ctx.fill();
 	
-	    if (!this.isSelf)
-        	ctx.strokeText(this.id, this.pos[0], this.pos[1] );
+	    //if (!this.isSelf)
+        //	ctx.strokeText(this.id, this.pos[0], this.pos[1] );
     }
 };
 
