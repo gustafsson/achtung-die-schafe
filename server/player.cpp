@@ -59,7 +59,7 @@ void Player::userData(QString data, World*world)
         float x = 2.f*rand()/(float)RAND_MAX - 1.f;
         // Find a new position further out (any direction possible, outwards is highly likely)
         float a = atan2((float)pos.y, (float)pos.x) + x*x*x*M_PI;
-        float r = BLOCK_SIZE*rand()*2/RAND_MAX;
+        float r = BLOCK_SIZE*(0.1f+.5f*rand()/RAND_MAX);
 
         // TODO find the closest one who is alive and start from there instead from taking just a random one.
         // pPlayer p = world->getRandomAlivePlayer();

@@ -75,7 +75,7 @@ pPlayer World::
 void World::
         timestep(float dt)
 {
-    float hiddenTime = .15;
+    float hiddenTime = .2;
 //    boost::unordered_map<Block,QString> patchDiffPerBlock;
 
     QString blockDiff;
