@@ -17,31 +17,24 @@ function Game(scene) {
     this.serverMessage = document.getElementById("serverMessage");
     this.serverMessage.innerHTML = "Achtung, die Schafe!";
     this.scene = scene;
-
-	loadImage();
-    
     var context = this.scene.context;
 
-    function loadImage(){
-        try {
-            var request = new XMLHttpRequest();
-            request.open("GET", "achtung.jpg", true);
-            request.onreadystatechange = function(){
-                if (request.readyState == 4) { // Makes sure the document is ready to parse.
-                    if (request.status == 200) { // Makes sure it's found the file.
-                        	var imageObj = new Image();
-					        imageObj.onload = function(){
-						        context.drawImage(this, -640, -320);
-					        };
-					
-					        imageObj.src = "achtung.jpg";
-                    }
-                }
-            };
-            request.send(null);
-        } catch (err) {}
-    }
+	this.loadImage(context,"achtung.jpg",[-640, -320]);
+    
 }
+
+Game.prototype.loadImage = function(ctx,url,offset){
+	this.ctx = ctx;
+	this.url = url;
+	try {
+		var imageObj = new Image();
+		imageObj.onload = function(){
+			ctx.drawImage(this, offset[0], offset[1]);
+		};
+		imageObj.src = url;
+	} catch (err) {}
+}
+
 
 
 Game.prototype.start = function() {
@@ -112,8 +105,8 @@ Game.prototype.ServerConnection = function() {
     if (this.server !== undefined)
         return;
 
-	 this.server = new WebSocket("ws://192.168.1.67:10001");
-	 //this.server = new WebSocket("ws://82.115.206.11:10001");
+	 //this.server = new WebSocket("ws://192.168.1.67:10001");
+	 this.server = new WebSocket("ws://82.115.206.11:10001");
 	 //this.server = new WebSocket("ws://82.115.206.12:10001");
      var server = this.server;
      var scene = this.scene;
