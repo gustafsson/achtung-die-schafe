@@ -6,6 +6,9 @@
 #include <boost/foreach.hpp>
 #include <cmath>
 
+#define WARNING_DISTANCE (400ll*100ll)
+#define SHAFE_DISTANCE (800ll*100ll)
+
 
 World::World()
 {
@@ -119,6 +122,7 @@ void World::
             else
             {
                 p.timeSinceVisible = 0;
+                p.newTargetVisibleTime();
                 // Start growing trail
                 if (!p.currentPatch)
                     newPatch = true;
@@ -170,6 +174,17 @@ void World::
         {
             p.alive = false;
             sender->sendPlayerData(p.id(), "({serverMessage:'Press space to restart',deathByWall:true})");
+
+            BOOST_FOREACH(Players::value_type& v2, players)
+            {
+                Player& p2 = *v2.second;
+                if (!p2.alive)
+                    continue;
+
+                Position::T d = dist2(p.pos, p2.pos);
+                if (d<SHAFE_DISTANCE*SHAFE_DISTANCE)
+                    p2.score++;
+            }
         }
     }
 
@@ -188,15 +203,12 @@ void World::
         p.alive = true;
         Position::T d = dist2(p.pos, n->pos);
 
-        Position::T warning = 400*100;
-        Position::T kill = 800*100;
-
-        if (d>kill*kill)
+        if (d>SHAFE_DISTANCE*SHAFE_DISTANCE)
         {
             p.alive = false;
             sender->sendPlayerData(p.id(), "({serverMessage:'Press space to restart',deathBySheep:true})");
         }
-        else if (d>warning*warning)
+        else if (d>WARNING_DISTANCE*WARNING_DISTANCE)
         {
             sender->sendPlayerData(p.id(), "({serverMessage:'Press space to restart'})");
         }
@@ -209,12 +221,13 @@ void World::
         if (!playerPosData.isEmpty())
             playerPosData += ",";
 
-        playerPosData += QString("{id:%1,pos:[%2,%3],alive:%5,color:'%4'}")
+        playerPosData += QString("{id:%1,pos:[%2,%3],alive:%5,color:'%4,score:%6'}")
             .arg(p.first)
             .arg(p.second->pos.x*0.01f)
             .arg(p.second->pos.y*0.01f)
             .arg(QColor(p.second->rgba).name())
-            .arg(p.second->alive?"true":"false");
+            .arg(p.second->alive?"true":"false")
+            .arg(p.second->score);
     }
 
     BOOST_FOREACH(Players::value_type& p, players)
