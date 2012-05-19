@@ -135,6 +135,8 @@ Game.prototype.ServerConnection = function() {
         }
 
 		if (message.players !== undefined)
+		{
+		    var htmlscore="";
 		    for (var i=0; i<message.players.length; ++i)
 		    {
 		        var msgplayer = message.players[i];
@@ -144,8 +146,14 @@ Game.prototype.ServerConnection = function() {
 		        var player = scene.player_list[msgplayer.id];
 		        player.pos = msgplayer.pos;
 		        player.alive = msgplayer.alive;
+		        player.score = msgplayer.score;
+		        htmlscore += "<span style='color:" + player.color + "'>" + player.id + "</span>: " + player.score;
+		        if (!player.alive)
+    		        htmlscore += " (observer)";
+		        htmlscore += "<br/>";
 		    }
-
+            document.getElementById("scoreboard").innerHTML = htmlscore;
+        }
 
 		if (message.newTrails !== undefined)
 		    for (var i=0; i<message.newTrails.length; i++)
@@ -373,6 +381,7 @@ function Player(id,color) {
     this.color = color;
     this.alive = false;
     this.isSelf = false;
+    this.score = 0;
 };
 
 

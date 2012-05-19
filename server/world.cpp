@@ -221,7 +221,7 @@ void World::
         if (!playerPosData.isEmpty())
             playerPosData += ",";
 
-        playerPosData += QString("{id:%1,pos:[%2,%3],alive:%5,color:'%4,score:%6'}")
+        playerPosData += QString("{id:%1,pos:[%2,%3],alive:%5,color:'%4',score:%6}")
             .arg(p.first)
             .arg(p.second->pos.x*0.01f)
             .arg(p.second->pos.y*0.01f)
