@@ -5,8 +5,10 @@
 
 #define PLAYER_CANVAS_WIDTH 800
 #define PLAYER_CANVAS_HEIGHT 600
+#define PLAYER_RADIUS 5
 
 typedef long long PlayerId;
+class World;
 
 class Player
 {
@@ -14,17 +16,21 @@ public:
     Player(PlayerId id);
 
     void tick(float dt);
-    void userData(QString data);
+    void userData(QString data, World*);
+    void newTargetVisibleTime();
 
     PlayerId id() { return id_; }
     BoundingBox boundingBox();
 
     float dir; /// newpos = pos + speed*[cos(dir), sin(dir)]
     Position pos;
-    unsigned ticksSinceHidden;
+    float timeSinceVisible;
+    float targetVisibleTime;
     Patch* currentPatch;
     bool turningLeft, turningRight;
     unsigned rgba;
+    bool alive;
+    int score;
 
 private:
     PlayerId id_;

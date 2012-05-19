@@ -22,7 +22,8 @@ public:
 
     WorldMap worldMap;
 
-    pPlayer getRandomPlayer();
+    pPlayer getAlivePlayerNearest(Position p);
+    pPlayer getRandomAlivePlayer();
     pPlayer findPlayer(PlayerId);
     void timestep(float);
 
@@ -31,6 +32,7 @@ public:
 
     Players players;
 private:
+    bool hasCollisions(const Player&);
 };
 
 #endif // WORLD_H

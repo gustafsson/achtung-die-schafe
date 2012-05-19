@@ -1,15 +1,20 @@
 #include "player.h"
+#include "world.h"
 #include <QColor>
 
 Player::Player(PlayerId id)
-:   dir(0), ticksSinceHidden(0), currentPatch(0), turningLeft(false), turningRight(false), id_(id)
+:   dir(0), timeSinceVisible(0), currentPatch(0), turningLeft(false), turningRight(false), id_(id)
 {
+    alive = false;
     pos.x = 0;
     pos.y = 0;
+    score = 0;
 
-    int hue = rand()%256;
+    int hue = rand()%360;
     QColor c = QColor::fromHsv(hue,255,255);
     rgba = c.rgba();
+
+    newTargetVisibleTime();
 }
 
 
@@ -28,10 +33,14 @@ void Player::tick(float dt)
 }
 
 
-void Player::userData(QString data)
+void Player::newTargetVisibleTime()
 {
-    // TODO add "alive" flag
+    targetVisibleTime = 0.8f + 0.5f*rand()/RAND_MAX;
+}
 
+
+void Player::userData(QString data, World*world)
+{
     if (data == "leftdown")
         turningLeft = true;
     if (data == "leftup")
@@ -41,6 +50,30 @@ void Player::userData(QString data)
         turningRight = true;
     if (data == "rightup")
         turningRight = false;
+
+    if (data == "spacedown" && !alive)
+    {
+        float x = 2.f*rand()/(float)RAND_MAX - 1.f;
+        // Find a new position further out (any direction possible, outwards is highly likely)
+        float a = atan2(pos.y, pos.x) + x*x*x*M_PI;
+        float r = BLOCK_SIZE*rand()*2/RAND_MAX;
+
+        // TODO find the closest one who is alive and start from there instead from taking just a random one.
+        // pPlayer p = world->getRandomAlivePlayer();
+        pPlayer p = world->getAlivePlayerNearest(pos);
+        if (p)
+            pos = p->pos;
+
+        pos.x += cos(a)*r;
+        pos.y += sin(a)*r;
+        dir = 2.f*M_PI*rand()/(float)RAND_MAX;
+        alive = true;
+        currentPatch = 0;
+        timeSinceVisible = 0;
+        newTargetVisibleTime();
+
+        world->sender->sendPlayerData(id_, "({serverMessage:'Stear with left and right arrows'})");
+    }
 }
 
 

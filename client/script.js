@@ -51,7 +51,8 @@ Game.prototype.start = function() {
 	this.scene.canvas.onkeydown = function(evt) {
 	    //evt = evt || window.event;
 	    var keyCode = evt.keyCode || evt.which,
-		    arrow = {left: 37, right: 39 }, $status = $('#status');
+		    arrow = {left: 37, right: 39 }, $status = $('#status'),
+		    spacebar = 32;
 
 	    switch (keyCode) {
 	    case arrow.left:
@@ -62,6 +63,10 @@ Game.prototype.start = function() {
 		    window.console.log('rightdown!');
 		    game.server.send("rightdown");
 	    break;
+	    case spacebar:
+		    window.console.log('spacedown!');
+		    game.server.send("spacedown");
+	    break;	    
 	    }
     };
     
@@ -107,7 +112,7 @@ Game.prototype.ServerConnection = function() {
     if (this.server !== undefined)
         return;
 
-	 this.server = new WebSocket("ws://localhost:10001");
+	 this.server = new WebSocket("ws://192.168.1.67:10001");
 	 //this.server = new WebSocket("ws://82.115.206.11:10001");
 	 //this.server = new WebSocket("ws://82.115.206.12:10001");
      var server = this.server;
@@ -124,28 +129,27 @@ Game.prototype.ServerConnection = function() {
     	
 		var message = eval(evt.data);
 
-
+		if (message.serverMessage !== undefined)
+		    game.serverMessage.innerHTML = message.serverMessage;
+		    
 		if (message.clientPlayerId !== undefined)
 		    scene.clientPlayerId = message.clientPlayerId;
 
+		if (message.playerDisconnected !== undefined)
+		{
+		    delete(scene.player_list[message.playerDisconnected]);
+        }
 
 		if (message.players !== undefined)
 		    for (var i=0; i<message.players.length; ++i)
 		    {
-		        // TODO could use this information to update trails
-		        
 		        var msgplayer = message.players[i];
 		        if (scene.player_list[msgplayer.id] === undefined)
         		    scene.player_list[msgplayer.id] = new Player(msgplayer.id, msgplayer.color);
-        		if (msgplayer.status == 'disconnected')
-        		{
-        		    delete(scene.player_list[msgplayer.id]);
-        		    continue;
-		        }
 		        
 		        var player = scene.player_list[msgplayer.id];
 		        player.pos = msgplayer.pos;
-		        player.status = msgplayer.status;
+		        player.alive = msgplayer.alive;
 		    }
 
 
@@ -291,6 +295,8 @@ Scene.prototype.draw = function() {
 
 	// Translate the whole scene according to the player's current location
 	this.context.translate(this.context.canvas.width/2, this.context.canvas.height/2);
+	if (this.player_list[ this.clientPlayerId ].alive)
+	    this.scale = 1;
 	this.context.scale(this.scale, this.scale);
 	var wantedPos = this.player_list[ this.clientPlayerId ].pos;
 	this.camera[0] = this.camera[0] + (wantedPos[0]-this.camera[0])*0.01;
@@ -364,14 +370,21 @@ function Player(id,color) {
     this.pos = [0,0];
     this.id = id;
     this.color = color;
-    this.status = '';
+    this.alive = false;
+    this.isSelf = false;
 };
 
 
 Player.prototype.render = function(ctx) {
-	ctx.beginPath();
-	ctx.strokeStyle = this.color;
-    ctx.arc(this.pos[0], this.pos[1], 5, 0 , 2 * Math.PI, false);
-	ctx.fill();
+    if (this.alive)
+    {
+	    ctx.beginPath();
+	    ctx.strokeStyle = this.color;
+        ctx.arc(this.pos[0], this.pos[1], 5, 0 , 2 * Math.PI, false);
+	    ctx.fill();
+	
+	    if (!this.isSelf)
+        	ctx.strokeText(this.id, this.pos[0], this.pos[1] );
+    }
 };
 

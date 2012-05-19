@@ -19,7 +19,7 @@ class BoundingBox
 public:
     Position topLeft, bottomRight;
 
-    bool intersect(const BoundingBox& b)
+    bool intersect(const BoundingBox& b) const
     {
         return
             topLeft.x < b.bottomRight.x &&
@@ -28,13 +28,30 @@ public:
             b.topLeft.y < bottomRight.y;
     }
 
-    bool intersect(const Position& p)
+    bool intersect(const Position& p) const
     {
         return
             topLeft.x <= p.x &&
             topLeft.y <= p.y &&
             bottomRight.x > p.x &&
             bottomRight.y > p.y;
+    }
+
+    bool intersect(const Position& p, Position::T margin) const
+    {
+        return
+            topLeft.x <= p.x + margin &&
+            topLeft.y <= p.y + margin&&
+            bottomRight.x + margin > p.x &&
+            bottomRight.y + margin > p.y;
+    }
+
+    void grow(const Position& p)
+    {
+        if (p.x < topLeft.x) topLeft.x = p.x;
+        if (p.y < topLeft.y) topLeft.y = p.y;
+        if (p.x > bottomRight.x) bottomRight.x = p.x;
+        if (p.y > bottomRight.y) bottomRight.y = p.y;
     }
 };
 
@@ -46,6 +63,7 @@ public:
 
     std::vector<Position> pos;
     unsigned rgba, id;
+    BoundingBox bb;
 
     QString patchGrow(const Position& p);
     QString patchSerialize() const;

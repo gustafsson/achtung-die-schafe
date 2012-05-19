@@ -18,6 +18,8 @@ QString Patch::
 
     if (pos.empty())
     {
+        bb.bottomRight = bb.topLeft = p;
+
         Block::Location loc(p);
         patchAdd =
                 QString("{"
@@ -34,6 +36,8 @@ QString Patch::
                     .arg(loc.x())
                     .arg(loc.y());
     } else {
+        bb.grow(p);
+
         Block::Location loc(pos.front());
         patchAdd =
                 QString("{"

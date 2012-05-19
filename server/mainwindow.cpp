@@ -1,10 +1,11 @@
 #include "mainwindow.h"
 #include "logger.h"
+#include "incoming.h"
 #include "ui_mainwindow.h"
 
 #include <QTimer>
+#include <QTime>
 
-#include <incoming.h>
 #include <boost/foreach.hpp>
 
 MainWindow::MainWindow(QWidget *parent) :
@@ -35,25 +36,33 @@ MainWindow::~MainWindow()
 void MainWindow::newPlayer(PlayerId id)
 {
     world.newPlayer(id);
+    ui->listWidget->addItem(QString("Player %1 joined").arg(id));
 }
 
 
 void MainWindow::lostPlayer(PlayerId id)
 {
     world.lostPlayer(id);
+    ui->listWidget->addItem(QString("Player %1 left").arg(id));
 }
 
 
 void MainWindow::gotPlayerData(PlayerId id, QString data)
 {
     pPlayer p = world.findPlayer(id);
-    p->userData(data);
+    p->userData(data, &world);
 }
 
 
 void MainWindow::timestep()
 {
-    world.timestep(0.010);
+    QTime t;
+    t.start();
+    int target = 29;
 
-    QTimer::singleShot(10, this, SLOT(timestep()));
+    world.timestep(0.001*target);
+
+    int left = target - t.elapsed();
+    if (left < 1) left = 1;
+    QTimer::singleShot(left, this, SLOT(timestep()));
 }
