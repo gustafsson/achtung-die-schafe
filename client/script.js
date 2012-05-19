@@ -82,6 +82,20 @@ Game.prototype.start = function() {
 	    }
     };
 
+    var MouseWheelHandler = function(e) {
+        var e = window.event || e; // old IE support  
+        var delta = Math.max(-1, Math.min(1, (e.wheelDelta || -e.detail)));
+        delta = delta > 0 ? 1 : delta < 0 ? -1 : 0;
+        game.scene.scale = game.scene.scale * Math.exp(0.1*delta);
+    };
+    
+    if (this.scene.canvas.addEventListener) {  
+        // IE9, Chrome, Safari, Opera  
+        this.scene.canvas.addEventListener("mousewheel", MouseWheelHandler, false);  
+        // Firefox  
+        this.scene.canvas.addEventListener("DOMMouseScroll", MouseWheelHandler, false);
+    }
+    
 	this.ServerConnection();
 
 };
