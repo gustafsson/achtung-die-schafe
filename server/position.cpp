@@ -63,7 +63,7 @@ QString Patch::
     QString position;
     for (unsigned i=0; i<pos.size(); ++i)
     {
-        if (0==i)
+        if (0!=i)
             position += ",";
         position += QString("[%1,%2]").arg(pos[i].x*0.01f).arg(pos[i].y*0.01f);
     }
@@ -81,7 +81,8 @@ QString Patch::
             .arg(position)
             .arg(id)
             .arg(QColor(this->rgba).name())
-            .arg(loc.x(), loc.y());
+            .arg(loc.x())
+            .arg(loc.y());
 
     return completePatch;
 }

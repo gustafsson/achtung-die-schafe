@@ -277,7 +277,7 @@ void World::newPlayer(PlayerId id)
         }
     }
 
-    sender->sendPlayerData(id, QString("({%1})").arg(response));
+    sender->sendPlayerData(id, QString("({newTrails:[%1]})").arg(response));
 }
 
 
