@@ -176,23 +176,8 @@ Game.prototype.ServerConnection = function() {
 		    }
 
 		if (message.deathBySheep !== undefined){
-		    try {
-				var request = new XMLHttpRequest();
-				request.open("GET", "deathBySheep.png", true);
-				request.onreadystatechange = function(){
-					if (request.readyState == 4) { // Makes sure the document is ready to parse.
-						if (request.status == 200) { // Makes sure it's found the file.
-								var imageObj = new Image();
-								imageObj.onload = function(){
-									scene.context.drawImage(this, 171, 189);
-								};
-						
-								imageObj.src = "achtung.jpg";
-						}
-					}
-				};
-				request.send(null);
-			} catch (err) {}
+			game.loadImage(scene.context,"deathBySheep.png",[171, 189]);
+	
 		}
 		
 		if (message.deathByWall !== undefined){
