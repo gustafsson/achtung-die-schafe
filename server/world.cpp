@@ -170,7 +170,7 @@ void World::
     BOOST_FOREACH(Players::value_type& v, players)
     {
         Player& p = *v.second;
-        if (!p.alive)
+        if (!p.alive || !p.currentPatch)
             continue;
 
         if (hasCollisions(p))
