@@ -176,7 +176,7 @@ void World::
         if (hasCollisions(p))
         {
             p.alive = false;
-            sender->sendPlayerData(p.id(), "({serverMessage:'Press space to restart',deathByWall:true})");
+            sender->sendPlayerData(p.id(), "{\"serverMessage\":\"Press space to restart\",deathByWall:true}");
 
             BOOST_FOREACH(Players::value_type& v2, players)
             {
@@ -215,18 +215,18 @@ void World::
         }
         else if (d>WARNING_DISTANCE*WARNING_DISTANCE)
         {
-            sender->sendPlayerData(p.id(), "({serverMessage:'Fight or you\\'ll fight the sheep!'})");
+            sender->sendPlayerData(p.id(), "{\"serverMessage\":\"Fight or you'll fight the sheep!\"}");
         }
         else
         {
-            sender->sendPlayerData(p.id(), "({serverMessage:'Steer with left and right arrows'})");
+            sender->sendPlayerData(p.id(), "{\"serverMessage\":\"Steer with left and right arrows\"}");
         }
     }
 
     BOOST_FOREACH(Player* p, wolfsToKill)
     {
         p->alive = false;
-        sender->sendPlayerData(p->id(), "({serverMessage:'Press space to restart',deathBySheep:true})");
+        sender->sendPlayerData(p->id(), "{\"serverMessage\":\"Press space to restart\",deathBySheep:true}");
     }
 
     QString playerPosData;
@@ -236,7 +236,7 @@ void World::
         if (!playerPosData.isEmpty())
             playerPosData += ",";
         /* TODO Encode Name !!! */
-        playerPosData += QString("{id:%1,pos:[%2,%3],alive:%5,color:'%4',score:%6,name:'%7'}")
+        playerPosData += QString("{\"id\":%1,\"pos\":[%2,%3],\"alive\":%5,\"color\":\"%4\",\"score\":%6,\"name\":\"%7\"}")
             .arg(p.first)
             .arg(p.second->pos.x*0.01f)
             .arg(p.second->pos.y*0.01f)
@@ -248,7 +248,7 @@ void World::
 
     BOOST_FOREACH(Players::value_type& p, players)
     {
-        QString individualData = QString("({players: [%1], newTrails: [%2]})")
+        QString individualData = QString("{\"players\": [%1], \"newTrails\": [%2]}")
             .arg(playerPosData)
             .arg(blockDiff);
         sender->sendPlayerData(p.first, individualData);
@@ -264,7 +264,7 @@ void World::lostPlayer(PlayerId id)
     BOOST_FOREACH(Players::value_type& pv, players)
     {
         if (pv.first != id)
-            sender->sendPlayerData(pv.first, QString("({playerDisconnected:%1").arg(id));
+            sender->sendPlayerData(pv.first, QString("{\"playerDisconnected\":%1}").arg(id));
     }
 }
 
@@ -293,7 +293,7 @@ void World::newPlayer(PlayerId id,QString name)
         }
     }
 
-    sender->sendPlayerData(id, QString("({newTrails:[%1]})").arg(response));
+    sender->sendPlayerData(id, QString("{\"newTrails\":[%1]}").arg(response));
 }
 
 

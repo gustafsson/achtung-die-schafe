@@ -13,15 +13,6 @@
  http://doc.trolltech.com/solutions/4/qtservice/qtservice-example-server.html
   */
 
-/**
-    QString patchAdd =
-            "({"
-                "id:1,"
-                "color:'0xff0000',"
-                "p:[[1,2],[3,4],[5,6]]"
-            "})";
-*/
-
 Incoming::Incoming(quint16 port, QObject* parent)
     :   QObject(parent)
 {
@@ -96,7 +87,7 @@ void Incoming::handshake(QString data){
 
     QWsSocket * socket = qobject_cast<QWsSocket*>( sender() );
 
-    join(socket,name);
+    join(socket, name);
 }
 
 
@@ -111,7 +102,7 @@ void Incoming::join(QWsSocket * clientSocket, QString name)
     
     PlayerId global_id = clients_reverse[ clientSocket ];
 
-    sendPlayerData( global_id, QString("({clientPlayerId:%1})").arg(global_id));
+    sendPlayerData( global_id, QString("{\"clientPlayerId\":%1}").arg(global_id));
     emit newPlayer( global_id, name );
 }
 

@@ -74,7 +74,7 @@ void Player::userData(QString data, World*world)
         timeSinceVisible = 0;
         newTargetVisibleTime();
 
-        world->sender->sendPlayerData(id_, "({serverMessage:'Steer with left and right arrows'})");
+        world->sender->sendPlayerData(id_, "{\"serverMessage\":\"Steer with left and right arrows\"}");
     }
 }
 

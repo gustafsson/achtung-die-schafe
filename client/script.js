@@ -151,7 +151,9 @@ Game.prototype.ServerConnection = function() {
     };
     this.server.onmessage = function (evt)
     {
-		var message = eval(evt.data);
+		//window.console.log("WebSocket: " + evt.data);
+		//var message = eval('(' + evt.data + ')');
+		var message = JSON.parse(evt.data);
 
 		if (message.serverMessage !== undefined)
 		    game.serverMessage.innerHTML = message.serverMessage;
