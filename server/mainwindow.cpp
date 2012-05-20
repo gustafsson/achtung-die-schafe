@@ -15,7 +15,7 @@ MainWindow::MainWindow(QWidget *parent) :
     ui->setupUi(this);
 
     //quint16 port = 39907;
-    #ifdef DEBUG
+    #ifdef _DEBUG
         quint16 port = 10002;
     #else
         quint16 port = 10001;
