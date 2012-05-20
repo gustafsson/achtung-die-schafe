@@ -151,7 +151,14 @@ Game.prototype.ServerConnection = function() {
     {
 		//window.console.log("WebSocket: " + evt.data);
 		//var message = eval('(' + evt.data + ')');
-		var message = JSON.parse(evt.data);
+        var message;
+        try {
+            message = JSON.parse(evt.data);
+        } catch (err) {
+            window.console.log("WebSocket couldn't parse json data. " + err);
+            window.console.log("Invalid JSON data was: \"" + evt.data + "\"");
+            return;
+        }
 
 		if (message.serverMessage !== undefined)
 		    game.serverMessage.innerHTML = message.serverMessage;
