@@ -336,7 +336,9 @@ bool World::hasCollisions(const Player& p)
                         continue;
                     }
 
-                    if (dx*dx + dy*dy < PLAYER_RADIUS*PLAYER_RADIUS)
+                    // Should compare against (2*PLAYER_RADIUS)*(2*PLAYER_RADIUS)
+                    // but we do want to let player cheat a little in corners to make it tight.
+                    if (dx*dx + dy*dy < 3*PLAYER_RADIUS*PLAYER_RADIUS)
                     {
                         return true;
                     }
