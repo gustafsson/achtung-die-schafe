@@ -36,7 +36,6 @@ private slots:
     void onPong(quint64 elapsedTime);
     void onClientDisconnection();
     void handshake(QString data);
-    void sheep(QByteArray) {}
 };
 
 

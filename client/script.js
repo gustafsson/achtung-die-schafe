@@ -5,7 +5,6 @@
 ///////////////////////////
 
 var game;
-count_death=0;
 
 function init(){	
 	var scene = new Scene(document.getElementById("myCanvas"));
@@ -25,13 +24,12 @@ function startGame(){
 
 function Game(scene) {
 	this.sheep_death_toll = document.getElementById("sheep_death_toll");
+    this.count_death=0;
     this.serverMessage = document.getElementById("serverMessage");
     this.serverMessage.innerHTML = "Achtung, die Schafe... Press play then space to start!";
     this.scene = scene;
-    var context = this.scene.context;
 
-	this.loadImage(context,"welcome.png",[-400, -300]);
-    
+	this.loadImage(scene.context,"welcome.png",[-400, -300]);
 }
 
 Game.prototype.loadImage = function(ctx,url,offset){
@@ -264,9 +262,9 @@ Game.prototype.ServerConnection = function() {
 		if (message.deathBySheep !== undefined){
 			game.serverMessage.innerHTML = "Told you to stay in the fight... You got trampled by a sheep!<p></p><p></p><p><strong>Press space to restart!</strong></p>";
 			max_death=10;
-			if (count_death<=max_death){
+			if (game.count_death<=max_death){
 				game.sheep_death_toll.innerHTML += '<img src="deathBySheep.png" alt="SheepKilledYou" width="80" height="60"/> ';
-				count_death++;
+				game.count_death++;
 			}
 			game.loadImage(scene.context,"deathBySheep.png",[171, 189]);
 		}

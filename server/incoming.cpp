@@ -14,6 +14,7 @@
  http://doc.trolltech.com/solutions/4/qtservice/qtservice-example-server.html
   */
 
+
 Incoming::Incoming(quint16 port, QObject* parent)
     :   QObject(parent)
 {
@@ -77,7 +78,6 @@ void Incoming::onClientConnection()
 
     QObject * clientObject = qobject_cast<QObject*>(clientSocket);
 
-    connect(clientObject, SIGNAL(frameReceived(QByteArray)), this, SLOT(sheep(QByteArray)));
     connect(clientObject, SIGNAL(frameReceived(QString)), this, SLOT(handshake(QString)));
     connect(clientObject, SIGNAL(disconnected()), this, SLOT(onClientDisconnection()));
     connect(clientObject, SIGNAL(pong(quint64)), this, SLOT(onPong(quint64)));
