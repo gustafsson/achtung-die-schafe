@@ -50,11 +50,16 @@ void Incoming::sendPlayerData(PlayerId id, QString data)
 {
     Logger::logMessage(QString("Server to player %2: %1").arg(data).arg(id));
     clients[ id ]->write( data );
+
+    // If the client is too far behind and is blocking resources, drop it
+    if (clients[ id ]->bytesToWrite() > 1000000)
+        clients[ id ]->abort();
 }
 
 
 void Incoming::onClientConnection()
 {
+    // TODO protect against DOS by rejecting players if the framerate drops or if the bandwidth is too low.
     QWsSocket * clientSocket = server->nextPendingConnection();
 
     // Create a new Player
