@@ -24,7 +24,7 @@ MainWindow::MainWindow(QWidget *parent) :
     incoming = new Incoming(port, this);
     world.sender = incoming;
 
-    connect(incoming, SIGNAL(newPlayer(PlayerId,name)), SLOT(newPlayer(PlayerId,name)));
+    connect(incoming, SIGNAL(newPlayer(PlayerId,QString)), SLOT(newPlayer(PlayerId,QString)));
     connect(incoming, SIGNAL(lostPlayer(PlayerId)), SLOT(lostPlayer(PlayerId)));
     connect(incoming, SIGNAL(gotPlayerData(PlayerId,QString)), SLOT(gotPlayerData(PlayerId,QString)));
 

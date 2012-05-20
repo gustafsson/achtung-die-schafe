@@ -79,23 +79,26 @@ void Incoming::onClientConnection()
     connect(clientObject, SIGNAL(pong(quint64)), this, SLOT(onPong(quint64)));
 }
 
+
 void Incoming::handshake(QString data){
-    QString name;
-    if (data.startsWith(QString("name"))){
-        name = data.mid(5);
-    }
-    else
+    if (!data.startsWith("name="))
     {
         Logger::logMessage( QString("I have received bogus data while handshake :%1").arg( data ));
-    }
-    
-    QWsSocket * socket = qobject_cast<QWsSocket*>( sender() );
-
-    if (socket == 0)
         return;
+    }
+
+    QString name = data.mid(5);
+    if (name.isEmpty())
+    {
+        name = QString("NinjaSheep%1").arg(rand());
+        Logger::logMessage( QString("Empty player name. New name: %1").arg(name));
+    }
+
+    QWsSocket * socket = qobject_cast<QWsSocket*>( sender() );
 
     join(socket,name);
 }
+
 
 void Incoming::join(QWsSocket * clientSocket, QString name)
 {
@@ -106,7 +109,7 @@ void Incoming::join(QWsSocket * clientSocket, QString name)
 
     Logger::logMessage(QString("Handshake with %1").arg(clientSocket->peerAddress().toString()));
     
-    static PlayerId global_id = clients_reverse[ clientSocket ];
+    PlayerId global_id = clients_reverse[ clientSocket ];
 
     sendPlayerData( global_id, QString("({clientPlayerId:%1})").arg(global_id));
     emit newPlayer( global_id, name );

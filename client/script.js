@@ -283,7 +283,7 @@ Game.prototype.ServerConnection = function() {
 	 this.server.onopen = function()
 	 {
 		//alert($('<div/>').text(document.getElementById("nameInput").value).html());
-		server.send($('<div/>').text(document.getElementById("nameInput").value).html());
+		server.send('name=' + $('<div/>').text(document.getElementById("nameInput").value).html());
 		document.getElementById("form").style.display = "none";
 	 };
   }
