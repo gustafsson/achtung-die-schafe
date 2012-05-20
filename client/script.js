@@ -271,7 +271,13 @@ Game.prototype.ServerConnection = function() {
 		}		
 		
         if (scene.clientPlayerId !== undefined && scene.player_list[scene.clientPlayerId] !== undefined)
-            scene.draw();
+        {
+            if (scene.queuedDrawing===undefined)
+            {
+                // By setting the timeout to 0 milliseconds this will execute as soon as websockets is finished with all queued messages
+                scene.queuedDrawing = window.setTimeout("game.scene.draw();game.scene.queuedDrawing=undefined",0);
+            }
+        }
             
 		server.send(""); // Not always necessary
 	 };
