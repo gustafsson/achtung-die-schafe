@@ -1,3 +1,9 @@
+///////////////////////////
+//
+// To select a server, browse to "index.html?host=192.168.1.1&port=10001"
+//
+///////////////////////////
+
 var game;
 count_death=0;
 
@@ -110,24 +116,41 @@ Game.prototype.ServerConnection = function() {
     if (this.server !== undefined)
         return;
 
-	 //this.server = new WebSocket("ws://192.168.1.67:10001");
-	 //this.server = new WebSocket("ws://82.115.206.11:10001");
-	 //this.server = new WebSocket("ws://195.42.110.149:10001");
-	 //this.server = new WebSocket("ws://82.115.195.159:10001");
-	 //this.server = new WebSocket("ws://82.115.195.155:10001");
-	 this.server = new WebSocket("ws://192.168.1.5:10001");
-     var server = this.server;
-     var scene = this.scene;
-     var game = this;
-     
-	 this.server.onerror = function(evt)
-	 {
-		window.console.log("error");
-	 };
-	 this.server.onmessage = function (evt) 
-	 {
-    	// game.serverMessage.innerHTML = evt.data;
-    	
+    function getParameterByName(name)
+    {
+      name = name.replace(/[\[]/, "\\\[").replace(/[\]]/, "\\\]");
+      var regexS = "[\\?&]" + name + "=([^&#]*)";
+      var regex = new RegExp(regexS);
+      var results = regex.exec(window.location.search);
+      if(results == null)
+        return undefined;
+      else
+        return decodeURIComponent(results[1].replace(/\+/g, " "));
+    }
+
+    var host = getParameterByName('host');
+    var port = getParameterByName('port');
+
+    if (host === undefined)
+        host = '192.168.1.5';
+
+    if (port === undefined)
+        port = '10001';
+
+    var SERVER_ADDRESS = 'ws://' + host + ':' + port;
+
+    this.server = new WebSocket(SERVER_ADDRESS);
+
+    var server = this.server;
+    var scene = this.scene;
+    var game = this;
+
+    this.server.onerror = function(evt)
+    {
+        window.console.log("error");
+    };
+    this.server.onmessage = function (evt)
+    {
 		var message = eval(evt.data);
 
 		if (message.serverMessage !== undefined)
