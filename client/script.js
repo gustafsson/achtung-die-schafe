@@ -286,6 +286,15 @@ Game.prototype.ServerConnection = function() {
             {
                 // By setting the timeout to 0 milliseconds this will execute as soon as websockets is finished with all queued messages
                 scene.queuedDrawing = window.setTimeout("game.scene.draw();game.scene.queuedDrawing=undefined",0);
+                if (scene.skippedFrames > 0)
+                {
+		            window.console.log("Skipped " + scene.skippedFrames + " frames");
+		            scene.skippedFrames = 0;
+	            }
+            }
+            else
+            {
+                scene.skippedFrames++;
             }
         }
             
@@ -382,6 +391,9 @@ function Scene(canvas) {
     this.blocks = [[]];
     this.clientPlayerId = undefined;
     this.player_list = [];
+
+    this.skippedFrames = 0;
+    this.queuedDrawing = undefined;
 
 	this.context.lineWidth=10;
 	this.context.lineCap="round";
