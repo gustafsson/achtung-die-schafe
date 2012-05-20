@@ -19,7 +19,7 @@ public:
     ~MainWindow();
 
 private slots:
-    void newPlayer(PlayerId);
+    void newPlayer(PlayerId,QString);
     void lostPlayer(PlayerId);
     void gotPlayerData(PlayerId, QString);
     void timestep();

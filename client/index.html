@@ -29,7 +29,7 @@
 			margin: auto;
 			display: block;
 			background-color: #ffffff;
-			opacity: 0.8;
+			opacity: 1;
 		}
 		#serverMessage {
 		    padding: 4px;
@@ -53,10 +53,15 @@
 		</canvas>
 		
 		<div style="display:inline;">
-		    <button type="button" onclick="startGame()" id="playbutton">Play!</button>
+			<form id="form" action="javascript:;">
+				<button type="button" onclick="startGame()" id="playbutton">Play!</button>
+			  Name: <input id="nameInput" type="text" name="pname" />
+			</form> 
     		<div id="serverMessage" style="display:inline;"></div>
     	</div>
 		<div id="scoreboard" style="display:inline;"></div>
+		<p></p>
+		<div id="sheep_death_toll" style="display:inline;"></div>
 	</div>
 	<p></p>
 </body>

@@ -5,8 +5,8 @@
 #define _USE_MATH_DEFINES
 #include "math.h"
 
-Player::Player(PlayerId id)
-:   dir(0), timeSinceVisible(0), currentPatch(0), turningLeft(false), turningRight(false), id_(id)
+Player::Player(PlayerId id, QString name)
+:   dir(0), timeSinceVisible(0), currentPatch(0), turningLeft(false), turningRight(false), id_(id), name_(name)
 {
     alive = false;
     pos.x = 0;
@@ -19,7 +19,6 @@ Player::Player(PlayerId id)
 
     newTargetVisibleTime();
 }
-
 
 void Player::tick(float dt)
 {

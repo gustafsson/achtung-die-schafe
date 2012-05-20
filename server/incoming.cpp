@@ -64,19 +64,48 @@ void Incoming::onClientConnection()
     clients[ global_id ] = clientSocket;
     clients_reverse[ clientSocket ] = global_id;
 
-    QObject * clientObject = qobject_cast<QObject*>(clientSocket);
-
-    connect(clientObject, SIGNAL(frameReceived(QByteArray)), this, SLOT(onDataReceived(QByteArray)));
-    connect(clientObject, SIGNAL(frameReceived(QString)), this, SLOT(onDataReceived(QString)));
-    connect(clientObject, SIGNAL(disconnected()), this, SLOT(onClientDisconnection()));
-    connect(clientObject, SIGNAL(pong(quint64)), this, SLOT(onPong(quint64)));
-
     Logger::logMessage(QString("Client connected from %1").arg(clientSocket->peerAddress().toString()));
 
-    sendPlayerData( global_id, QString("({clientPlayerId:%1})").arg(global_id));
-    emit newPlayer( global_id );
+    QObject * clientObject = qobject_cast<QObject*>(clientSocket);
+
+    connect(clientObject, SIGNAL(frameReceived(QByteArray)), this, SLOT(sheep(QByteArray)));
+    connect(clientObject, SIGNAL(frameReceived(QString)), this, SLOT(handshake(QString)));
+    connect(clientObject, SIGNAL(disconnected()), this, SLOT(onClientDisconnection()));
+    connect(clientObject, SIGNAL(pong(quint64)), this, SLOT(onPong(quint64)));
 }
 
+void Incoming::handshake(QString data){
+    QString name;
+    if (data.startsWith(QString("name"))){
+        name = data.mid(5);
+    }
+    else
+    {
+        Logger::logMessage( QString("I have received bogus data while handshake :%1").arg( data ));
+    }
+    
+    QWsSocket * socket = qobject_cast<QWsSocket*>( sender() );
+
+    if (socket == 0)
+        return;
+
+    join(socket,name);
+}
+
+void Incoming::join(QWsSocket * clientSocket, QString name)
+{
+    QObject * clientObject = qobject_cast<QObject*>(clientSocket);
+
+    disconnect(clientObject, SIGNAL(frameReceived(QString)), 0, 0);
+    connect(clientObject, SIGNAL(frameReceived(QString)), this, SLOT(onDataReceived(QString)));
+
+    Logger::logMessage(QString("Handshake with %1").arg(clientSocket->peerAddress().toString()));
+    
+    static PlayerId global_id = clients_reverse[ clientSocket ];
+
+    sendPlayerData( global_id, QString("({clientPlayerId:%1})").arg(global_id));
+    emit newPlayer( global_id, name );
+}
 
 void Incoming::onDataReceived(QString data)
 {

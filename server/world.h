@@ -28,7 +28,7 @@ public:
     void timestep(float);
 
     void lostPlayer(PlayerId);
-    void newPlayer(PlayerId);
+    void newPlayer(PlayerId,QString);
 
     Players players;
 private:

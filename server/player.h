@@ -13,13 +13,14 @@ class World;
 class Player
 {
 public:
-    Player(PlayerId id);
-
+    Player(PlayerId id, QString name);
+    
     void tick(float dt);
     void userData(QString data, World*);
     void newTargetVisibleTime();
 
-    PlayerId id() { return id_; }
+    PlayerId id() const { return id_; }
+    QString name() const { return name_; }
     BoundingBox boundingBox();
 
     float dir; /// newpos = pos + speed*[cos(dir), sin(dir)]
@@ -34,6 +35,7 @@ public:
 
 private:
     PlayerId id_;
+    QString name_;
 };
 
 typedef boost::shared_ptr<Player> pPlayer;

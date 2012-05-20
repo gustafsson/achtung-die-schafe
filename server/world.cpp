@@ -235,14 +235,15 @@ void World::
     {
         if (!playerPosData.isEmpty())
             playerPosData += ",";
-
-        playerPosData += QString("{id:%1,pos:[%2,%3],alive:%5,color:'%4',score:%6}")
+        /* TODO Encode Name !!! */
+        playerPosData += QString("{id:%1,pos:[%2,%3],alive:%5,color:'%4',score:%6,name:'%7'}")
             .arg(p.first)
             .arg(p.second->pos.x*0.01f)
             .arg(p.second->pos.y*0.01f)
             .arg(QColor(p.second->rgba).name())
             .arg(p.second->alive?"true":"false")
-            .arg(p.second->score);
+            .arg(p.second->score)
+            .arg(p.second->name());
     }
 
     BOOST_FOREACH(Players::value_type& p, players)
@@ -268,9 +269,9 @@ void World::lostPlayer(PlayerId id)
 }
 
 
-void World::newPlayer(PlayerId id)
+void World::newPlayer(PlayerId id,QString name)
 {
-    pPlayer p(new Player(id));
+    pPlayer p(new Player(id,name));
     players[id] = p;
     Block::Location location(p->pos);
     if (worldMap.find(location) == worldMap.end())

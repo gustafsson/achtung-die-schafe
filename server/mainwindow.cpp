@@ -15,11 +15,16 @@ MainWindow::MainWindow(QWidget *parent) :
     ui->setupUi(this);
 
     //quint16 port = 39907;
-    quint16 port = 10001;
+    #ifdef DEBUG
+        quint16 port = 10002;
+    #else
+        quint16 port = 10001;
+    #endif
+
     incoming = new Incoming(port, this);
     world.sender = incoming;
 
-    connect(incoming, SIGNAL(newPlayer(PlayerId)), SLOT(newPlayer(PlayerId)));
+    connect(incoming, SIGNAL(newPlayer(PlayerId,name)), SLOT(newPlayer(PlayerId,name)));
     connect(incoming, SIGNAL(lostPlayer(PlayerId)), SLOT(lostPlayer(PlayerId)));
     connect(incoming, SIGNAL(gotPlayerData(PlayerId,QString)), SLOT(gotPlayerData(PlayerId,QString)));
 
@@ -33,9 +38,9 @@ MainWindow::~MainWindow()
 }
 
 
-void MainWindow::newPlayer(PlayerId id)
+void MainWindow::newPlayer(PlayerId id, QString name)
 {
-    world.newPlayer(id);
+    world.newPlayer(id,name);
     ui->listWidget->addItem(QString("Player %1 joined").arg(id));
 }
 

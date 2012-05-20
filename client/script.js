@@ -1,8 +1,12 @@
 var game;
+count_death=0;
 
 function init(){	
 	var scene = new Scene(document.getElementById("myCanvas"));
 	game = new Game(scene);
+	
+	sheepNr=Math.floor((Math.random()*1000000)+1); 
+	document.getElementById("nameInput").value="Sheep"+sheepNr;
 }
 
 
@@ -14,12 +18,13 @@ function startGame(){
 
 
 function Game(scene) {
+	this.sheep_death_toll = document.getElementById("sheep_death_toll");
     this.serverMessage = document.getElementById("serverMessage");
-    this.serverMessage.innerHTML = "Achtung, die Schafe... Press space to start!";
+    this.serverMessage.innerHTML = "Achtung, die Schafe... Press play then space to start!";
     this.scene = scene;
     var context = this.scene.context;
 
-	this.loadImage(context,"sheep.png",[-500, -320]);
+	this.loadImage(context,"welcome.png",[-400, -300]);
     
 }
 
@@ -107,8 +112,10 @@ Game.prototype.ServerConnection = function() {
 
 	 //this.server = new WebSocket("ws://192.168.1.67:10001");
 	 //this.server = new WebSocket("ws://82.115.206.11:10001");
-	 this.server = new WebSocket("ws://195.42.110.149:10001");
-	 //this.server = new WebSocket("ws://82.115.206.12:10001");
+	 //this.server = new WebSocket("ws://195.42.110.149:10001");
+	 //this.server = new WebSocket("ws://82.115.195.159:10001");
+	 //this.server = new WebSocket("ws://82.115.195.155:10001");
+	 this.server = new WebSocket("ws://192.168.1.5:10001");
      var server = this.server;
      var scene = this.scene;
      var game = this;
@@ -136,7 +143,7 @@ Game.prototype.ServerConnection = function() {
 
 		if (message.players !== undefined)
 		{
-		    var htmlscore="";
+		    var htmlscore="Scoreboard:<br/>";
 		    for (var i=0; i<message.players.length; ++i)
 		    {
 		        var msgplayer = message.players[i];
@@ -147,13 +154,55 @@ Game.prototype.ServerConnection = function() {
 		        player.pos = msgplayer.pos;
 		        player.alive = msgplayer.alive;
 		        player.score = msgplayer.score;
-		        htmlscore += "<span style='color:" + player.color + "'>" + player.id + "</span>: " + player.score;
+		        htmlscore += "<span style='color:" + player.color + "'>" + msgplayer.name + "</span>: " + player.score;
 		        if (!player.alive)
     		        htmlscore += " (observer)";
 		        htmlscore += "<br/>";
 		    }
             document.getElementById("scoreboard").innerHTML = htmlscore;
         }
+		/*
+		if (message.players !== undefined)
+		{
+		    var htmlscore="Scoreboard:<br/><ol id="score_list">";
+		    for (var i=0; i<message.players.length; ++i)
+		    {
+		        var msgplayer = message.players[i];
+		        if (scene.player_list[msgplayer.id] === undefined)
+        		    scene.player_list[msgplayer.id] = new Player(msgplayer.id, msgplayer.color);
+		        
+		        var player = scene.player_list[msgplayer.id];
+		        player.pos = msgplayer.pos;
+		        player.alive = msgplayer.alive;
+		        player.score = msgplayer.score;
+		        htmlscore += "<li><span style='color:" + player.color + "'>" + msgplayer.name + "</span>: " + player.score;
+		        if (!player.alive)
+    		        htmlscore += " (observer)";
+		        htmlscore += "</li><br/>";
+		    }
+            document.getElementById("scoreboard").innerHTML = htmlscore+"</ol>";
+			
+			var score_list = document.getElementById("score_list");
+			
+			var tmpAry = new Array();
+			for (var i=0;i<score_list.length;i++) {
+					tmpAry[i] = new Array();
+					tmpAry[i][0] = selElem.options[i].text;
+			}
+			tmpAry.sort();
+			while (selElem.options.length > 0) {
+				selElem.options[0] = null;
+			}
+			for (var i=0;i<tmpAry.length;i++) {
+					var op = new Option(tmpAry[i][0], tmpAry[i][1]);
+					selElem.options[i] = op;
+			}
+			return;
+
+			
+			
+        }
+		*/
 
 		if (message.newTrails !== undefined)
 		    for (var i=0; i<message.newTrails.length; i++)
@@ -185,11 +234,17 @@ Game.prototype.ServerConnection = function() {
 		    }
 		
 		if (message.deathBySheep !== undefined){
+			game.serverMessage.innerHTML = "Told you to stay in the fight... You got trampled by a sheep!<p></p><p></p><p><strong>Press space to restart!</strong></p>";
+			max_death=10;
+			if (count_death<=max_death){
+				game.sheep_death_toll.innerHTML += '<img src="deathBySheep.png" alt="SheepKilledYou" width="80" height="60"/> ';
+				count_death++;
+			}
 			game.loadImage(scene.context,"deathBySheep.png",[171, 189]);
 		}
 		
 		if (message.deathByWall !== undefined){
-			game.serverMessage.innerHTML = "Straight into the wall... Press space to try again";
+			game.serverMessage.innerHTML = "Straight into the wall... Press space to try again<p></p><p></p><p>Hint: you're an observer... try scrolling!";
 		}		
 		
         if (scene.clientPlayerId !== undefined && scene.player_list[scene.clientPlayerId] !== undefined)
@@ -204,7 +259,9 @@ Game.prototype.ServerConnection = function() {
 	 };
 	 this.server.onopen = function()
 	 {
-		server.send("I'm in");
+		//alert($('<div/>').text(document.getElementById("nameInput").value).html());
+		server.send($('<div/>').text(document.getElementById("nameInput").value).html());
+		document.getElementById("form").style.display = "none";
 	 };
   }
   else
