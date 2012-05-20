@@ -6,6 +6,7 @@
 #include <QStringList>
 #include <QDateTime>
 #include <QMessageBox>
+#include <QTextDocument>
 
 /**
   Reference:
@@ -48,6 +49,18 @@ void Incoming::sendPlayerData(PlayerId id, QString data)
 }
 
 
+void Incoming::broadcast(QString data)
+{
+    Logger::logMessage(QString("Server to all players: %1").arg(data));
+
+    QMapIterator<PlayerId,QWsSocket*> i(clients);
+    while (i.hasNext()) {
+        i.next();
+        i.value()->write( data );
+    }
+}
+
+
 void Incoming::onClientConnection()
 {
     // TODO protect against DOS by rejecting players if the framerate drops or if the bandwidth is too low.
@@ -87,7 +100,7 @@ void Incoming::handshake(QString data){
 
     QWsSocket * socket = qobject_cast<QWsSocket*>( sender() );
 
-    join(socket, name);
+    join(socket, Qt::escape(name));
 }
 
 

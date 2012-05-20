@@ -17,6 +17,7 @@ public:
     ~Incoming();
 
     virtual void sendPlayerData(PlayerId, QString);
+    virtual void broadcast(QString);
 
 signals:
     void newPlayer(PlayerId, QString);
@@ -35,7 +36,7 @@ private slots:
     void onPong(quint64 elapsedTime);
     void onClientDisconnection();
     void handshake(QString data);
-    void sheep(QByteArray){};
+    void sheep(QByteArray) {}
 };
 
 

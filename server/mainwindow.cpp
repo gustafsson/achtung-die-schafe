@@ -5,6 +5,7 @@
 
 #include <QTimer>
 #include <QTime>
+#include <QTextDocument>
 
 #include <boost/foreach.hpp>
 
@@ -28,6 +29,7 @@ MainWindow::MainWindow(QWidget *parent) :
     connect(incoming, SIGNAL(lostPlayer(PlayerId)), SLOT(lostPlayer(PlayerId)));
     connect(incoming, SIGNAL(gotPlayerData(PlayerId,QString)), SLOT(gotPlayerData(PlayerId,QString)));
 
+    connect(ui->lineEdit, SIGNAL(returnPressed()), SLOT(alertPlayers()));
     QTimer::singleShot(1, this, SLOT(timestep()));
 }
 
@@ -70,4 +72,12 @@ void MainWindow::timestep()
     int left = target - t.elapsed();
     if (left < 1) left = 1;
     QTimer::singleShot(left, this, SLOT(timestep()));
+}
+
+
+void MainWindow::alertPlayers()
+{
+    QString msg = ui->lineEdit->text();
+    incoming->broadcast(QString("{\"serverAlert\":\"%1\"}").arg(Qt::escape(msg)));
+    ui->listWidget->addItem(QString("Server: %1").arg(msg));
 }

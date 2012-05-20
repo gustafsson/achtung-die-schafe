@@ -158,6 +158,9 @@ Game.prototype.ServerConnection = function() {
 		if (message.serverMessage !== undefined)
 		    game.serverMessage.innerHTML = message.serverMessage;
 		    
+		if (message.serverAlert !== undefined)
+		    alert(message.serverAlert);
+
 		if (message.clientPlayerId !== undefined)
 		    scene.clientPlayerId = message.clientPlayerId;
 
