@@ -433,8 +433,9 @@ Scene.prototype.draw = function() {
 	    this.scale = 1;
 	this.context.scale(this.scale, this.scale);
 	var wantedPos = this.player_list[ this.clientPlayerId ].pos;
-	this.camera[0] = this.camera[0] + (wantedPos[0]-this.camera[0])*0.01;
-	this.camera[1] = this.camera[1] + (wantedPos[1]-this.camera[1])*0.01;
+	var d = [wantedPos[0]-this.camera[0], wantedPos[1]-this.camera[1]];
+	this.camera[0] = this.camera[0] + d[0]*Math.min(0.1, 0.0000006*d[0]*d[0]);
+	this.camera[1] = this.camera[1] + d[1]*Math.min(0.1, 0.0000006*d[1]*d[1]);
 	this.context.translate(-this.camera[0], -this.camera[1]);
 	
 	// Draw all prerendered image blocks
