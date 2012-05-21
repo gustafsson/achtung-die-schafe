@@ -176,10 +176,12 @@ Game.prototype.ServerConnection = function() {
 
 		if (message.players !== undefined)
 		{
-		    var scoreChanged = false;
-		    for (var msgplayeri in message.players)
+			
+			var sortedPlayers = message.players.sort(function(a,b) { return a.score < b.score; });
+			
+			for (var i=0; i<sortedPlayers.length; ++i)
 		    {
-                var msgplayer = message.players[msgplayeri];
+		        var msgplayer = sortedPlayers[i];
 		        if (scene.player_list[msgplayer.id] === undefined)
         		    scene.player_list[msgplayer.id] = new Player(msgplayer.id, msgplayer.color);
 		        
@@ -205,48 +207,6 @@ Game.prototype.ServerConnection = function() {
                 document.getElementById("scoreboard").innerHTML = htmlscore;
             }
         }
-		/*
-		if (message.players !== undefined)
-		{
-		    var htmlscore="Scoreboard:<br/><ol id="score_list">";
-		    for (var i=0; i<message.players.length; ++i)
-		    {
-		        var msgplayer = message.players[i];
-		        if (scene.player_list[msgplayer.id] === undefined)
-        		    scene.player_list[msgplayer.id] = new Player(msgplayer.id, msgplayer.color);
-		        
-		        var player = scene.player_list[msgplayer.id];
-		        player.pos = msgplayer.pos;
-		        player.alive = msgplayer.alive;
-		        player.score = msgplayer.score;
-		        htmlscore += "<li><span style='color:" + player.color + "'>" + msgplayer.name + "</span>: " + player.score;
-		        if (!player.alive)
-    		        htmlscore += " (observer)";
-		        htmlscore += "</li><br/>";
-		    }
-            document.getElementById("scoreboard").innerHTML = htmlscore+"</ol>";
-			
-			var score_list = document.getElementById("score_list");
-			
-			var tmpAry = new Array();
-			for (var i=0;i<score_list.length;i++) {
-					tmpAry[i] = new Array();
-					tmpAry[i][0] = selElem.options[i].text;
-			}
-			tmpAry.sort();
-			while (selElem.options.length > 0) {
-				selElem.options[0] = null;
-			}
-			for (var i=0;i<tmpAry.length;i++) {
-					var op = new Option(tmpAry[i][0], tmpAry[i][1]);
-					selElem.options[i] = op;
-			}
-			return;
-
-			
-			
-        }
-		*/
 
 		if (message.newTrails !== undefined)
 		    for (var i=0; i<message.newTrails.length; i++)
@@ -319,7 +279,7 @@ Game.prototype.ServerConnection = function() {
 	 this.server.onopen = function()
 	 {
 		//alert($('<div/>').text(document.getElementById("nameInput").value).html());
-		server.send('name=' + $('<div/>').text(document.getElementById("nameInput").value).html());
+		server.send('name=' + document.getElementById("nameInput").value);
 		document.getElementById("form").style.display = "none";
 	 };
   }
@@ -507,6 +467,7 @@ Scene.prototype.blockPainter = function(X,Y,f) {
 function Player(id,color) {
     this.pos = [0,0];
     this.id = id;
+	this.name = "";
     this.color = color;
     this.alive = false;
     this.isSelf = false;
