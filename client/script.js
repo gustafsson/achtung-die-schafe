@@ -189,7 +189,7 @@ Game.prototype.ServerConnection = function() {
 		        if (msgplayer.pos !== undefined)    player.pos = msgplayer.pos;
 		        if (msgplayer.alive !== undefined)  {player.alive = msgplayer.alive; scoreChanged = true;}
 		        if (msgplayer.score !== undefined)  {player.score = msgplayer.score; scoreChanged = true;}
-		        if (msgplayer.color !== undefined)  {player.color = msgplayer.score; scoreChanged = true;}
+		        if (msgplayer.color !== undefined)  {player.color = msgplayer.color; scoreChanged = true;}
 		        if (msgplayer.name !== undefined)   {player.name = msgplayer.name; scoreChanged = true;}
 		    }
 
