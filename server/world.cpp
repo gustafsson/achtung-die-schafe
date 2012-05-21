@@ -1,4 +1,5 @@
 #include "world.h"
+#include "logger.h"
 
 #include <QString>
 #include <QColor>
@@ -266,7 +267,20 @@ void World::
 void World::lostPlayer(PlayerId id)
 {
     pPlayer p = findPlayer(id);
-    worldMap[ Block::Location(p->pos) ]->players.erase(p);
+    pBlock b = worldMap[ Block::Location(p->pos) ];
+    if (b)
+        b->players.erase(p);
+    else
+    {
+        Logger::logMessage(QString("Lost player '%1' (id %2). The block where the player was supposed to be (%3,%4->%5,%6) doesn't exist.")
+            .arg(p->name())
+            .arg(id)
+            .arg(p->pos.x)
+            .arg(p->pos.y)
+            .arg(Block::Location(p->pos).x())
+            .arg(Block::Location(p->pos).y()));
+    }
+
     players.erase(id);
     BOOST_FOREACH(Players::value_type& pv, players)
     {
