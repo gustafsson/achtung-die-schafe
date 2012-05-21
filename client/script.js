@@ -17,8 +17,9 @@ function init(){
 
 function startGame(){
     game.start();
-    var playbutton = document.getElementById("playbutton");
-    playbutton.style.display = "none";
+
+    document.getElementById("playbutton").style.display = "none";
+    document.getElementById("form").style.display = "none";
 }
 
 
@@ -50,12 +51,25 @@ Game.prototype.start = function() {
     this.scene.onscreenCanvas.focus();
     var game = this;
     
+    var updatePlayerAction = function() {
+        var player = game.scene.player_list[game.scene.clientPlayerId];
+        if (game.scene.keys[37] === game.scene.keys[39])
+            player.action = '';
+        else if (game.scene.keys[37])
+            player.action = 'l';
+        else
+            player.action = 'r';
+    }
+
 	this.scene.onscreenCanvas.onkeydown = function(evt) {
 	    //evt = evt || window.event;
         evt.preventDefault();
 
 	    var keyCode = evt.keyCode || evt.which;
 	    game.server.send('+'+keyCode);
+
+        game.scene.keys[keyCode] = true;
+        updatePlayerAction();
     };
 
 	this.scene.onscreenCanvas.onkeyup = function(evt) {
@@ -64,6 +78,9 @@ Game.prototype.start = function() {
 
 	    var keyCode = evt.keyCode || evt.which;
 	    game.server.send('-'+keyCode);
+
+        game.scene.keys[keyCode] = false;
+        updatePlayerAction();
     };
 
     var MouseWheelHandler = function(e) {
@@ -187,6 +204,8 @@ Game.prototype.ServerConnection = function() {
 		        
 		        var player = scene.player_list[msgplayer.id];
 		        if (msgplayer.pos !== undefined)    player.pos = msgplayer.pos;
+		        if (msgplayer.dir !== undefined)    player.dir = msgplayer.dir;
+		        if (msgplayer.action !== undefined) player.action = msgplayer.action;
 		        if (msgplayer.alive !== undefined)  {player.alive = msgplayer.alive; scoreChanged = true;}
 		        if (msgplayer.score !== undefined)  {player.score = msgplayer.score; scoreChanged = true;}
 		        if (msgplayer.color !== undefined)  {player.color = msgplayer.color; scoreChanged = true;}
@@ -258,19 +277,7 @@ Game.prototype.ServerConnection = function() {
         if (scene.clientPlayerId !== undefined && scene.player_list[scene.clientPlayerId] !== undefined)
         {
             if (scene.queuedDrawing===undefined)
-            {
-                // By setting the timeout to 0 milliseconds this will execute as soon as websockets is finished with all queued messages
-                scene.queuedDrawing = window.setTimeout("game.scene.draw();game.scene.queuedDrawing=undefined",1);
-                if (scene.skippedFrames > 0)
-                {
-		            window.console.log("Skipped " + scene.skippedFrames + " frames");
-		            scene.skippedFrames = 0;
-	            }
-            }
-            else
-            {
-                scene.skippedFrames++;
-            }
+                scene.continiousDraw();
         }
             
 		//server.send(""); // Not always necessary
@@ -369,8 +376,8 @@ function Scene(canvas) {
     this.clientPlayerId = undefined;
     this.player_list = [];
 	this.text_to_display = "";
+    this.keys = [];
 
-    this.skippedFrames = 0;
     this.queuedDrawing = undefined;
 
 	this.context.lineWidth=10;
@@ -383,6 +390,26 @@ function Scene(canvas) {
 	this.onscreenContext.clearRect(0, 0, canvas.width, canvas.height);
 }
 
+Scene.prototype.continiousDraw = function() {
+    var targetFps = 60;
+
+    var start = new Date();
+        game.scene.simulate(1/targetFps);
+        game.scene.draw();
+    var stop = new Date();
+
+    var diff = Math.max(1, 1000/targetFps - (stop-start));
+    game.scene.queuedDrawing = window.setTimeout(game.scene.continiousDraw, diff);
+}
+
+Scene.prototype.simulate = function(dt) {
+    // Draw all players
+    for (var playeri in this.player_list)
+    {
+        var player = this.player_list[playeri];
+        player.simulate(dt);
+    }
+}
 
 Scene.prototype.draw = function() {
 	
@@ -477,7 +504,10 @@ Scene.prototype.blockPainter = function(X,Y,f) {
 
 
 function Player(id,color) {
+    this.lastPos = [0,0];
+    this.action = ''; // 'l', 'r' or ''
     this.pos = [0,0];
+    this.dir = 0;
     this.id = id;
 	this.name = "";
     this.color = color;
@@ -498,5 +528,19 @@ Player.prototype.render = function(ctx) {
 	    //if (!this.isSelf)
         //	ctx.strokeText(this.id, this.pos[0], this.pos[1] );
     }
+};
+
+
+Player.prototype.simulate = function(dt) {
+    if (!this.alive)
+        return;
+
+    if (this.action=='l')
+        this.dir -= 3.14*dt;
+    if (this.action=='r')
+        this.dir += 3.14*dt;
+
+    this.pos[0] += dt*130*Math.cos(this.dir);
+    this.pos[1] += dt*130*Math.sin(this.dir);
 };
 

@@ -123,7 +123,7 @@ QString Player::serializeIncremental() {
         s << "{\"id\":" << id_;
         bool any = false;
         if (alive || wasDragged_)
-            s << ",\"pos\":[" << pos.x*0.01f << "," << pos.y*0.01f << "]", any = true;
+            s << ",\"pos\":[" << pos.x*0.01f << "," << pos.y*0.01f << "],\"action\":\"" << (turningRight == turningLeft ? "" : turningLeft ? "l" : "r") << "\",\"dir\":" << dir, any = true;
         if (wasAlive_ != alive)
             s << ",\"alive\":" << (alive?"true":"false"), any = true;
         if (oldScore_ != score)
