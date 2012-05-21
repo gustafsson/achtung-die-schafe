@@ -193,12 +193,9 @@ Game.prototype.ServerConnection = function() {
 
 		if (message.players !== undefined)
 		{
-			
-			var sortedPlayers = message.players.sort(function(a,b) { return a.score < b.score; });
-			
-			for (var i=0; i<sortedPlayers.length; ++i)
+			for (var playeri in message.players)
 		    {
-		        var msgplayer = sortedPlayers[i];
+		        var msgplayer = message.players[i];
 		        if (scene.player_list[msgplayer.id] === undefined)
         		    scene.player_list[msgplayer.id] = new Player(msgplayer.id, msgplayer.color);
 		        
