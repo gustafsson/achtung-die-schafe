@@ -97,6 +97,10 @@ void Incoming::handshake(QString data){
         name = QString("NinjaSheep%1").arg(rand());
         Logger::logMessage( QString("Empty player name. New name: %1").arg(name));
     }
+    else {    
+        Logger::logMessage( QString("Name of new player: %1").arg(name));
+        //Logger::logMessage( QString("Name of new player: %1").arg(Qt::escape(name)));
+    }
 
     QWsSocket * socket = qobject_cast<QWsSocket*>( sender() );
 
