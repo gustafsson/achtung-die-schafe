@@ -102,8 +102,10 @@ void Incoming::handshake(QString data){
         //Logger::logMessage( QString("Name of new player: %1").arg(Qt::escape(name)));
     }
 
-    QWsSocket * socket = qobject_cast<QWsSocket*>( sender() );
+    //TODO in all cases, check if name already exists. If so, login procedure should fail, forcing the player to choose another name
 
+    QWsSocket * socket = qobject_cast<QWsSocket*>( sender() );
+    
     join(socket, Qt::escape(name));
 }
 

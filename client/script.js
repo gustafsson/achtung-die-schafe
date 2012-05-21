@@ -164,7 +164,7 @@ Game.prototype.ServerConnection = function() {
 		    game.serverMessage.innerHTML = message.serverMessage;
 		    
 		if (message.serverAlert !== undefined)
-		    alert(message.serverAlert);
+		    scene.text_to_display=message.serverAlert;
 
 		if (message.clientPlayerId !== undefined)
 		    scene.clientPlayerId = message.clientPlayerId;
@@ -364,6 +364,7 @@ function Scene(canvas) {
     this.blocks = [[]];
     this.clientPlayerId = undefined;
     this.player_list = [];
+	this.text_to_display = "";
 
     this.skippedFrames = 0;
     this.queuedDrawing = undefined;
@@ -420,8 +421,15 @@ Scene.prototype.draw = function() {
 
 	this.onscreenContext.clearRect(0, 0, this.context.canvas.width, this.context.canvas.height);
     this.onscreenContext.drawImage(this.canvas, 0, 0);
+	if (this.text_to_display!=""){
+		this.onscreenContext.fillText(this.text_to_display, 100, 100);
+	}
 };
 
+//will probably need some kind of timer to display for a certain amount of time
+Scene.prototype.writeOnCanvas = function(text) {
+    this.onscreenContext.fillText(text,100,100);
+}
 
 Scene.prototype.getBlockCoordinates = function(p) {
     return [Math.floor(p[0]/this.blockSize), Math.floor(p[1]/this.blockSize)];
