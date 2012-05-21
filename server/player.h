@@ -44,6 +44,7 @@ private:
     int wasAlive_;
     int oldScore_;
     bool hadPatch_;
+    bool wasDragged_;
 };
 
 typedef boost::shared_ptr<Player> pPlayer;

@@ -9,7 +9,7 @@
 #include "math.h"
 
 Player::Player(PlayerId id, QString name)
-:   dir(0), timeSinceVisible(0), currentPatch(0), turningLeft(false), turningRight(false), id_(id), name_(name), wasAlive_(-1), oldScore_(-1)
+:   dir(0), timeSinceVisible(0), currentPatch(0), turningLeft(false), turningRight(false), id_(id), name_(name), wasAlive_(-1), oldScore_(-1), wasDragged_(false)
 {
     alive = false;
     pos.x = 0;
@@ -84,6 +84,19 @@ void Player::userData(QString data, World*world)
 
         world->sender->sendPlayerData(id_, "{\"serverMessage\":\"Steer with left and right arrows\"}");
     }
+
+    if (data.length() > 1 && data[0]=='m')
+    {
+        QStringList strs = data.mid(1).split(",");
+        if (strs.size()==2 && !alive)
+        {
+            float clientX = strs[0].toFloat();
+            float clientY = strs[1].toFloat();
+            pos.x -= clientX * 100.f + 0.5f;
+            pos.y -= clientY * 100.f + 0.5f;
+            wasDragged_ = true;
+        }
+    }
 }
 
 
@@ -109,7 +122,7 @@ QString Player::serializeIncremental() {
         QTextStream s(&r);
         s << "{\"id\":" << id_;
         bool any = false;
-        if (alive)
+        if (alive || wasDragged_)
             s << ",\"pos\":[" << pos.x*0.01f << "," << pos.y*0.01f << "]", any = true;
         if (wasAlive_ != alive)
             s << ",\"alive\":" << (alive?"true":"false"), any = true;
@@ -126,6 +139,7 @@ QString Player::serializeIncremental() {
     wasAlive_ = alive;
     oldScore_ = score;
     hadPatch_ = currentPatch != 0;
+    wasDragged_ = false;
 
     return r;
 }

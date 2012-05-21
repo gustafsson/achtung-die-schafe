@@ -80,6 +80,29 @@ Game.prototype.start = function() {
         this.scene.onscreenCanvas.addEventListener("DOMMouseScroll", MouseWheelHandler, false);
     }
     
+    this.scene.onscreenCanvas.onmousedown = function(evt) {
+        game.scene.clickPos = [evt.clientX, evt.clientY];
+		window.console.log("onmousedown: " + evt.clientX + "," + evt.clientY);
+    };
+    this.scene.onscreenCanvas.onmousemove = function(evt) {
+        if (game.scene.clickPos === undefined)
+            return;
+
+        var d = [(evt.clientX - game.scene.clickPos[0])/game.scene.scale,
+                 (evt.clientY - game.scene.clickPos[1])/game.scene.scale];
+        game.scene.clickPos = [evt.clientX, evt.clientY];
+        game.scene.camera[0] -= d[0];
+        game.scene.camera[1] -= d[1];
+        var msg = 'm' + d[0] + "," + d[1];
+        game.server.send(msg);
+		window.console.log("onmousemove: " + msg);
+    };
+    this.scene.onscreenCanvas.onmouseup = function(evt) {
+        game.scene.clickPos = undefined;
+		window.console.log("onmouseup: " + evt.clientX + "," + evt.clientY);
+    };
+    this.scene.onscreenCanvas.onmouseout = this.scene.onscreenCanvas.onmouseup;
+
 	this.ServerConnection();
 
 };
