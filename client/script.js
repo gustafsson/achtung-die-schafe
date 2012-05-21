@@ -47,10 +47,10 @@ Game.prototype.loadImage = function(ctx,url,offset){
 
 
 Game.prototype.start = function() {
-    this.scene.canvas.focus();
+    this.scene.onscreenCanvas.focus();
     var game = this;
     
-	this.scene.canvas.onkeydown = function(evt) {
+	this.scene.onscreenCanvas.onkeydown = function(evt) {
 	    //evt = evt || window.event;
 	    var keyCode = evt.keyCode || evt.which,
 		    arrow = {left: 37, right: 39 }, $status = $('#status'),
@@ -72,7 +72,7 @@ Game.prototype.start = function() {
 	    }
     };
     
-	this.scene.canvas.onkeyup = function(evt) {
+	this.scene.onscreenCanvas.onkeyup = function(evt) {
 	    //evt = evt || window.event;
 	    var keyCode = evt.keyCode || evt.which,
 		    arrow = {left: 37, right: 39 }, $status = $('#status');
@@ -96,11 +96,11 @@ Game.prototype.start = function() {
         game.scene.scale = game.scene.scale * Math.exp(0.1*delta);
     };
     
-    if (this.scene.canvas.addEventListener) {  
+    if (this.scene.onscreenCanvas.addEventListener) {
         // IE9, Chrome, Safari, Opera  
-        this.scene.canvas.addEventListener("mousewheel", MouseWheelHandler, false);  
+        this.scene.onscreenCanvas.addEventListener("mousewheel", MouseWheelHandler, false);
         // Firefox  
-        this.scene.canvas.addEventListener("DOMMouseScroll", MouseWheelHandler, false);
+        this.scene.onscreenCanvas.addEventListener("DOMMouseScroll", MouseWheelHandler, false);
     }
     
 	this.ServerConnection();
@@ -383,8 +383,10 @@ function drawKurv(ctx,p,color)
 
 
 function Scene(canvas) {
-	this.canvas = canvas;
-	this.context = canvas.getContext('2d');
+	this.canvas = document.createElement('canvas');
+    this.canvas.width = canvas.width;
+    this.canvas.height = canvas.height;
+	this.context = this.canvas.getContext('2d');
 	this.blockSize = 400;
     this.scale = 1;
     this.camera = [0, 0];
@@ -399,6 +401,10 @@ function Scene(canvas) {
 	this.context.lineCap="round";
 
 	this.context.translate(this.context.canvas.width/2, this.context.canvas.height/2);
+
+    this.onscreenCanvas = canvas;
+    this.onscreenContext = this.onscreenCanvas.getContext('2d');
+	this.onscreenContext.clearRect(0, 0, canvas.width, canvas.height);
 }
 
 
@@ -439,6 +445,9 @@ Scene.prototype.draw = function() {
         var player = this.player_list[playeri];
         player.render(this.context);
     }
+
+	this.onscreenContext.clearRect(0, 0, this.context.canvas.width, this.context.canvas.height);
+    this.onscreenContext.drawImage(this.canvas, 0, 0);
 };
 
 
