@@ -196,9 +196,13 @@ Game.prototype.ServerConnection = function() {
             if (scoreChanged)
             {
                 var htmlscore="Scoreboard:<br/>";
-                for (var playeri in scene.player_list)
+                var sortedPlayers = scene.player_list.slice().sort(function(a,b){return a.score<b.score;});
+                for (var playeri in sortedPlayers)
                 {
-                    var player = scene.player_list[playeri];
+                    var player = sortedPlayers[playeri];
+                    if (player===undefined)
+                        continue;
+
                     htmlscore += "<span style='color:" + player.color + "'>" + player.name + "</span>: " + player.score;
                     if (!player.alive)
 	                    htmlscore += " (observer)";
