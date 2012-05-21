@@ -33,9 +33,17 @@ public:
     bool alive;
     int score;
 
+    qint64 timestamp;
+    qint64 playtime;
+
+    QString serializeIncremental();
+    QString serialize();
 private:
     PlayerId id_;
     QString name_;
+    int wasAlive_;
+    int oldScore_;
+    bool hadPatch_;
 };
 
 typedef boost::shared_ptr<Player> pPlayer;

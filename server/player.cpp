@@ -1,17 +1,23 @@
 #include "player.h"
 #include "world.h"
+
 #include <QColor>
+#include <QTextStream>
+#include <QDateTime>
 
 #define _USE_MATH_DEFINES
 #include "math.h"
 
 Player::Player(PlayerId id, QString name)
-:   dir(0), timeSinceVisible(0), currentPatch(0), turningLeft(false), turningRight(false), id_(id), name_(name)
+:   dir(0), timeSinceVisible(0), currentPatch(0), turningLeft(false), turningRight(false), id_(id), name_(name), wasAlive_(-1), oldScore_(-1)
 {
     alive = false;
     pos.x = 0;
     pos.y = 0;
     score = 0;
+
+    timestamp = QDateTime::currentDateTime().toMSecsSinceEpoch();
+    playtime = 0;
 
     int hue = rand()%360;
     QColor c = QColor::fromHsv(hue,255,255);
@@ -72,6 +78,8 @@ void Player::userData(QString data, World*world)
         alive = true;
         currentPatch = 0;
         timeSinceVisible = 0;
+        turningLeft = false;
+        turningRight = false;
         newTargetVisibleTime();
 
         world->sender->sendPlayerData(id_, "{\"serverMessage\":\"Steer with left and right arrows\"}");
@@ -88,4 +96,49 @@ BoundingBox Player::boundingBox() {
     bb.bottomRight.x += PLAYER_CANVAS_WIDTH;
     bb.bottomRight.y += PLAYER_CANVAS_HEIGHT;
     return bb;
+}
+
+
+QString Player::serializeIncremental() {
+    QString r;
+
+    if (wasAlive_ == -1)
+        r = serialize();
+    else
+    {
+        QTextStream s(&r);
+        s << "{\"id\":" << id_;
+        bool any = false;
+        if (alive)
+            s << ",\"pos\":[" << pos.x*0.01f << "," << pos.y*0.01f << "]", any = true;
+        if (wasAlive_ != alive)
+            s << ",\"alive\":" << (alive?"true":"false"), any = true;
+        if (oldScore_ != score)
+            s << ",\"score\":" << score, any = true;
+        if (hadPatch_ != (currentPatch!=0))
+            s << ",\"gap\":" << (currentPatch==0?"true":"false"), any = true;
+        s << "}";
+
+        if (!any)
+            return QString();
+    }
+
+    wasAlive_ = alive;
+    oldScore_ = score;
+    hadPatch_ = currentPatch != 0;
+
+    return r;
+}
+
+
+QString Player::serialize() {
+    return QString("{\"id\":%1,\"pos\":[%2,%3],\"alive\":%5,\"color\":\"%4\",\"score\":%6,\"name\":\"%7\",\"gap\":%8}")
+            .arg(id_)
+            .arg(pos.x*0.01f)
+            .arg(pos.y*0.01f)
+            .arg(QColor(rgba).name())
+            .arg(alive?"true":"false")
+            .arg(score)
+            .arg(name())
+            .arg(currentPatch==0?"true":"false");
 }

@@ -2,6 +2,7 @@
 
 #include <QString>
 #include <QColor>
+#include <QTextStream>
 
 #include <boost/foreach.hpp>
 #include <cmath>
@@ -176,7 +177,7 @@ void World::
         if (hasCollisions(p))
         {
             p.alive = false;
-            sender->sendPlayerData(p.id(), "{\"serverMessage\":\"Press space to restart\",deathByWall:true}");
+            sender->sendPlayerData(p.id(), "{\"serverMessage\":\"Press space to restart\",\"deathByWall\":true}");
 
             BOOST_FOREACH(Players::value_type& v2, players)
             {
@@ -191,7 +192,7 @@ void World::
         }
     }
 
-    // Makes the algorithm unfair if killing one wolf but not both if they are two.
+    // Figure out who to kill, then kill them.
     std::set<Player*> wolfsToKill;
 
     // Check for lone wolfs
@@ -226,33 +227,39 @@ void World::
     BOOST_FOREACH(Player* p, wolfsToKill)
     {
         p->alive = false;
-        sender->sendPlayerData(p->id(), "{\"serverMessage\":\"Press space to restart\",deathBySheep:true}");
+        sender->sendPlayerData(p->id(), "{\"serverMessage\":\"Press space to restart\",\"deathBySheep\":true}");
     }
 
     QString playerPosData;
+    QTextStream playerPosDataStream(&playerPosData);
 
+    bool firstPlayer = true;
     BOOST_FOREACH(Players::value_type& p, players)
     {
-        if (!playerPosData.isEmpty())
-            playerPosData += ",";
-        /* TODO Encode Name !!! */
-        playerPosData += QString("{\"id\":%1,\"pos\":[%2,%3],\"alive\":%5,\"color\":\"%4\",\"score\":%6,\"name\":\"%7\"}")
-            .arg(p.first)
-            .arg(p.second->pos.x*0.01f)
-            .arg(p.second->pos.y*0.01f)
-            .arg(QColor(p.second->rgba).name())
-            .arg(p.second->alive?"true":"false")
-            .arg(p.second->score)
-            .arg(p.second->name());
+        const QString& playData = p.second->serializeIncremental();
+
+        if (!playData.isEmpty())
+        {
+            if (!firstPlayer)
+                playerPosDataStream << ",";
+            firstPlayer = false;
+
+            playerPosDataStream << playData;
+        }
+    }
+    playerPosDataStream.flush();
+
+    if (firstPlayer)
+    {
+        // no players had any data to send
+        sender->broadcast("");
+        return;
     }
 
-    BOOST_FOREACH(Players::value_type& p, players)
-    {
-        QString individualData = QString("{\"players\": [%1], \"newTrails\": [%2]}")
-            .arg(playerPosData)
-            .arg(blockDiff);
-        sender->sendPlayerData(p.first, individualData);
-    }
+    QString individualData = QString("{\"players\": [%1], \"newTrails\": [%2]}")
+        .arg(playerPosData)
+        .arg(blockDiff);
+    sender->broadcast(individualData);
 }
 
 
@@ -293,7 +300,23 @@ void World::newPlayer(PlayerId id,QString name)
         }
     }
 
-    sender->sendPlayerData(id, QString("{\"newTrails\":[%1]}").arg(response));
+    QString playerPosData;
+    QTextStream playerPosDataStream(&playerPosData);
+
+    bool firstPlayer = true;
+    BOOST_FOREACH(Players::value_type& p, players)
+    {
+        if (!firstPlayer)
+            playerPosDataStream << ",";
+        firstPlayer = false;
+
+        playerPosDataStream << p.second->serialize();
+    }
+    playerPosDataStream.flush();
+
+    sender->sendPlayerData(id, QString("{\"players\": [%1], \"newTrails\": [%2]}")
+        .arg(playerPosData)
+        .arg(response));
 }
 
 

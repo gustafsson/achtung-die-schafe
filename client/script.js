@@ -176,23 +176,34 @@ Game.prototype.ServerConnection = function() {
 
 		if (message.players !== undefined)
 		{
-		    var htmlscore="Scoreboard:<br/>";
-		    for (var i=0; i<message.players.length; ++i)
+		    var scoreChanged = false;
+		    for (var msgplayeri in message.players)
 		    {
-		        var msgplayer = message.players[i];
+                var msgplayer = message.players[msgplayeri];
 		        if (scene.player_list[msgplayer.id] === undefined)
         		    scene.player_list[msgplayer.id] = new Player(msgplayer.id, msgplayer.color);
 		        
 		        var player = scene.player_list[msgplayer.id];
-		        player.pos = msgplayer.pos;
-		        player.alive = msgplayer.alive;
-		        player.score = msgplayer.score;
-		        htmlscore += "<span style='color:" + player.color + "'>" + msgplayer.name + "</span>: " + player.score;
-		        if (!player.alive)
-    		        htmlscore += " (observer)";
-		        htmlscore += "<br/>";
+		        if (msgplayer.pos !== undefined)    player.pos = msgplayer.pos;
+		        if (msgplayer.alive !== undefined)  {player.alive = msgplayer.alive; scoreChanged = true;}
+		        if (msgplayer.score !== undefined)  {player.score = msgplayer.score; scoreChanged = true;}
+		        if (msgplayer.color !== undefined)  {player.color = msgplayer.score; scoreChanged = true;}
+		        if (msgplayer.name !== undefined)   {player.name = msgplayer.name; scoreChanged = true;}
 		    }
-            document.getElementById("scoreboard").innerHTML = htmlscore;
+
+            if (scoreChanged)
+            {
+                var htmlscore="Scoreboard:<br/>";
+                for (var playeri in scene.player_list)
+                {
+                    var player = scene.player_list[playeri];
+                    htmlscore += "<span style='color:" + player.color + "'>" + player.name + "</span>: " + player.score;
+                    if (!player.alive)
+	                    htmlscore += " (observer)";
+                    htmlscore += "<br/>";
+                }
+                document.getElementById("scoreboard").innerHTML = htmlscore;
+            }
         }
 		/*
 		if (message.players !== undefined)
