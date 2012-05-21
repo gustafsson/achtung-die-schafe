@@ -267,18 +267,26 @@ void World::
 void World::lostPlayer(PlayerId id)
 {
     pPlayer p = findPlayer(id);
-    pBlock b = worldMap[ Block::Location(p->pos) ];
-    if (b)
-        b->players.erase(p);
+    if (!p)
+    {
+        Logger::logMessage(QString("Lost player (id %1). But the player no longer exists.")
+            .arg(id));
+    }
     else
     {
-        Logger::logMessage(QString("Lost player '%1' (id %2). The block where the player was supposed to be (%3,%4->%5,%6) doesn't exist.")
-            .arg(p->name())
-            .arg(id)
-            .arg(p->pos.x)
-            .arg(p->pos.y)
-            .arg(Block::Location(p->pos).x())
-            .arg(Block::Location(p->pos).y()));
+        pBlock b = worldMap[ Block::Location(p->pos) ];
+        if (!b)
+        {
+            Logger::logMessage(QString("Lost player '%1' (id %2). The block where the player was supposed to be (%3,%4->%5,%6) doesn't exist.")
+                .arg(p->name())
+                .arg(id)
+                .arg(p->pos.x)
+                .arg(p->pos.y)
+                .arg(Block::Location(p->pos).x())
+                .arg(Block::Location(p->pos).y()));
+        }
+        else
+            b->players.erase(p);
     }
 
     players.erase(id);
