@@ -49,17 +49,17 @@ void Player::newTargetVisibleTime()
 
 void Player::userData(QString data, World*world)
 {
-    if (data == "leftdown")
+    if (data == "+37")
         turningLeft = true;
-    if (data == "leftup")
+    if (data == "-37")
         turningLeft = false;
 
-    if (data == "rightdown")
+    if (data == "+39")
         turningRight = true;
-    if (data == "rightup")
+    if (data == "-39")
         turningRight = false;
 
-    if (data == "spacedown" && !alive)
+    if (data == "+32" && !alive)
     {
         float x = 2.f*rand()/(float)RAND_MAX - 1.f;
         // Find a new position further out (any direction possible, outwards is highly likely)

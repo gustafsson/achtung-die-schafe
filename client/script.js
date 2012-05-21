@@ -51,44 +51,19 @@ Game.prototype.start = function() {
     var game = this;
     
 	this.scene.onscreenCanvas.onkeydown = function(evt) {
+	    //evt = evt || window.event;
         evt.preventDefault();
 
-	    //evt = evt || window.event;
-	    var keyCode = evt.keyCode || evt.which,
-		    arrow = {left: 37, right: 39 }, $status = $('#status'),
-		    spacebar = 32;
-
-	    switch (keyCode) {
-	    case arrow.left:
-		    window.console.log('leftdown!');
-		    game.server.send("leftdown");
-	    break;
-	    case arrow.right:
-		    window.console.log('rightdown!');
-		    game.server.send("rightdown");
-	    break;
-	    case spacebar:
-		    window.console.log('spacedown!');
-		    game.server.send("spacedown");
-	    break;	    
-	    }
+	    var keyCode = evt.keyCode || evt.which;
+	    game.server.send('+'+keyCode);
     };
-    
+
 	this.scene.onscreenCanvas.onkeyup = function(evt) {
 	    //evt = evt || window.event;
-	    var keyCode = evt.keyCode || evt.which,
-		    arrow = {left: 37, right: 39 }, $status = $('#status');
+        evt.preventDefault();
 
-	    switch (keyCode) {
-	    case arrow.left:
-		    window.console.log('leftup!');
-		    game.server.send("leftup");
-	    break;
-	    case arrow.right:
-		    window.console.log('rightup!');
-		    game.server.send("rightup");
-	    break;
-	    }
+	    var keyCode = evt.keyCode || evt.which;
+	    game.server.send('-'+keyCode);
     };
 
     var MouseWheelHandler = function(e) {
@@ -311,7 +286,7 @@ Game.prototype.ServerConnection = function() {
             }
         }
             
-		server.send(""); // Not always necessary
+		//server.send(""); // Not always necessary
 	 };
 	 this.server.onclose = function()
 	 {
