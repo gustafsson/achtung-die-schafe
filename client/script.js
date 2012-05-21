@@ -296,7 +296,7 @@ Game.prototype.ServerConnection = function() {
             if (scene.queuedDrawing===undefined)
             {
                 // By setting the timeout to 0 milliseconds this will execute as soon as websockets is finished with all queued messages
-                scene.queuedDrawing = window.setTimeout("game.scene.draw();game.scene.queuedDrawing=undefined",0);
+                scene.queuedDrawing = window.setTimeout("game.scene.draw();game.scene.queuedDrawing=undefined",1);
                 if (scene.skippedFrames > 0)
                 {
 		            window.console.log("Skipped " + scene.skippedFrames + " frames");
