@@ -51,6 +51,8 @@ Game.prototype.start = function() {
     var game = this;
     
 	this.scene.onscreenCanvas.onkeydown = function(evt) {
+        evt.preventDefault();
+
 	    //evt = evt || window.event;
 	    var keyCode = evt.keyCode || evt.which,
 		    arrow = {left: 37, right: 39 }, $status = $('#status'),
