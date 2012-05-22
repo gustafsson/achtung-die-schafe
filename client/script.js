@@ -53,6 +53,10 @@ Game.prototype.start = function() {
     
     var updatePlayerAction = function() {
         var player = game.scene.player_list[game.scene.clientPlayerId];
+
+        if (player===undefined) // Not initiated
+            return;
+
         if (game.scene.keys[37] === game.scene.keys[39])
             player.action = '';
         else if (game.scene.keys[37])
@@ -88,6 +92,8 @@ Game.prototype.start = function() {
         var delta = Math.max(-1, Math.min(1, (e.wheelDelta || -e.detail)));
         delta = delta > 0 ? 1 : delta < 0 ? -1 : 0;
         game.scene.scale = game.scene.scale * Math.exp(0.1*delta);
+
+        e.preventDefault();
     };
     
     if (this.scene.onscreenCanvas.addEventListener) {
@@ -193,9 +199,14 @@ Game.prototype.ServerConnection = function() {
 
 		if (message.players !== undefined)
 		{
+		    var scoreChanged = false;
+
 			for (var playeri in message.players)
 		    {
-		        var msgplayer = message.players[i];
+		        var msgplayer = message.players[playeri];
+		        if (msgplayer === undefined)
+		            continue;
+
 		        if (scene.player_list[msgplayer.id] === undefined)
         		    scene.player_list[msgplayer.id] = new Player(msgplayer.id, msgplayer.color);
 		        
