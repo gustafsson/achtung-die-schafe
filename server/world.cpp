@@ -228,6 +228,7 @@ void World::
     BOOST_FOREACH(Player* p, wolfsToKill)
     {
         p->alive = false;
+        p->score--;
         sender->sendPlayerData(p->id(), "{\"serverMessage\":\"Press space to restart\",\"deathBySheep\":true}");
     }
 
