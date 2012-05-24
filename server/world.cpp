@@ -376,15 +376,27 @@ bool World::hasCollisions(const Player& p)
                         continue;
                     }
 
-                    if (dx==0 && dy==0)
+                    Position::T d = dx*dx + dy*dy;
+                    if (n>0)
                     {
-                        // self
-                        continue;
+                        if ( d < 8*PLAYER_RADIUS*PLAYER_RADIUS )
+                        {
+                            // Check for collisions with line segment in between points
+                            // Find projection on line segment
+                            Position::T px = patch.pos[n-1].x - patch.pos[n].x;
+                            Position::T py = patch.pos[n-1].y - patch.pos[n].y;
+
+                            Position::T dx2 = patch.pos[n-1].x - p.pos.x;
+                            Position::T dy2 = patch.pos[n-1].y - p.pos.y;
+
+                            if (dx*px+dy*py < 0 && dx2*px+dy2*py > 0)
+                                d = (dx*py - dy*px)*(dx*py - dy*px)/(px*px + py*py);
+                        }
                     }
 
                     // Should compare against (2*PLAYER_RADIUS)*(2*PLAYER_RADIUS)
                     // but we do want to let player cheat a little in corners to make it tight.
-                    if (dx*dx + dy*dy < 3*PLAYER_RADIUS*PLAYER_RADIUS)
+                    if (d < 3*PLAYER_RADIUS*PLAYER_RADIUS)
                     {
                         return true;
                     }
