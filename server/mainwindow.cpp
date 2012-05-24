@@ -30,7 +30,9 @@ MainWindow::MainWindow(QWidget *parent) :
     connect(incoming, SIGNAL(gotPlayerData(PlayerId,QString)), SLOT(gotPlayerData(PlayerId,QString)));
 
     connect(ui->lineEdit, SIGNAL(returnPressed()), SLOT(alertPlayers()));
-    QTimer::singleShot(1, this, SLOT(timestep()));
+
+    timestep();
+    updateGui();
 }
 
 
@@ -69,46 +71,54 @@ bool highScore(const pPlayer& a, const pPlayer& b)
 
 void MainWindow::timestep()
 {
+    static QTime wallclock = QTime::currentTime();
+    int dt = wallclock.elapsed();
+    wallclock.restart();
+
     QTime t;
     t.start();
-    int target = 29;
 
-    {
-        world.timestep(0.001*target);
+    world.timestep(0.001f*dt);
 
-
-
-        std::vector<pPlayer> players;
-        BOOST_FOREACH(Players::value_type v, world.players)
-            players.push_back(v.second);
-
-        qSort(players.begin(), players.end(), highScore);
-
-        qint64 now = QDateTime::currentDateTime().toMSecsSinceEpoch();
-
-        QStringList str;
-        BOOST_FOREACH(pPlayer v, players)
-        {
-            Player& p = *v;
-
-            QTime t(0,0,0,now-p.timestamp);
-
-            str << QString("%1. %2 (id=%3, %4, %5) %6")
-                .arg(p.score)
-                .arg(p.name())
-                .arg(p.id())
-                .arg(QTime().addMSecs(now-p.timestamp).toString(Qt::ISODate))
-                .arg(QTime().addMSecs(p.playtime+=p.alive?target:0).toString(Qt::ISODate))
-                .arg(p.alive?"":" (observer)");
-        }
-
-        ui->listWidget->clear();
-        ui->listWidget->addItems(str);
-    }
+    int target = 50;
 
     int left = target - t.elapsed();
     if (left < 1) left = 1;
     QTimer::singleShot(left, this, SLOT(timestep()));
+}
+
+
+void MainWindow::updateGui()
+{
+    static QTime wallclock = QTime::currentTime();
+    int dt = wallclock.elapsed();
+    wallclock.restart();
+
+    std::vector<pPlayer> players;
+    BOOST_FOREACH(Players::value_type v, world.players)
+        players.push_back(v.second);
+
+    qSort(players.begin(), players.end(), highScore);
+
+    qint64 now = QDateTime::currentDateTime().toMSecsSinceEpoch();
+
+    QStringList str;
+    BOOST_FOREACH(pPlayer v, players)
+    {
+        Player& p = *v;
+
+        str << QString("%1. %2 (id=%3, %4, %5) %6")
+            .arg(p.score)
+            .arg(p.name())
+            .arg(p.id())
+            .arg(QTime().addMSecs(now-p.timestamp).toString(Qt::ISODate))
+            .arg(QTime().addMSecs(p.playtime+=p.alive?dt:0).toString(Qt::ISODate))
+            .arg(p.alive?"":" (observer)");
+    }
+
+    ui->listWidget->clear();
+    ui->listWidget->addItems(str);
+    QTimer::singleShot(1000, this, SLOT(updateGui()));
 }
 
 

@@ -23,6 +23,7 @@ private slots:
     void lostPlayer(PlayerId);
     void gotPlayerData(PlayerId, QString);
     void timestep();
+    void updateGui();
     void alertPlayers();
 
 private:
