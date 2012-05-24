@@ -406,7 +406,7 @@ Scene.prototype.continiousDraw = function() {
         game.scene.draw();
     var stop = new Date();
 
-    var diff = Math.max(1, 1000/targetFps - (stop-start));
+    var diff = Math.max(2, 1000/targetFps - (stop-start));
     game.scene.queuedDrawing = window.setTimeout(game.scene.continiousDraw, diff);
 }
 
