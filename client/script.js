@@ -293,7 +293,7 @@ Game.prototype.ServerConnection = function() {
 		}
 		
 		if (message.deathByWall !== undefined){
-			game.serverMessage.innerHTML = "Straight into the wall... Press space to try again<p></p><p></p><p>Hint: you're an observer... try scrolling!";
+			game.serverMessage.innerHTML = "Straight into the wall... Press space to try again<p></p><p></p><p>Hint: you're an observer... try pressing up and down arrows!";
 		}		
 		
         if (scene.clientPlayerId !== undefined && scene.player_list[scene.clientPlayerId] !== undefined)
@@ -425,7 +425,21 @@ Scene.prototype.continiousDraw = function() {
 }
 
 Scene.prototype.simulate = function(dt) {
-    // Draw all players
+    if (this.keys[38]) // up arrow
+        this.scale = this.scale * Math.exp(0.1);
+    if (this.keys[40]) // down arrow
+        this.scale = this.scale * Math.exp(-0.1);
+	//if (this.player_list[ this.clientPlayerId ].alive)
+	//    this.scale = 1;
+	this.scale = this.scale*0.99 + 1*0.01;
+	this.scale = Math.max(0.01, Math.min(5, this.scale));
+
+	var wantedPos = this.player_list[ this.clientPlayerId ].pos;
+	var d = [(wantedPos[0]-this.camera[0])*this.scale, (wantedPos[1]-this.camera[1])*this.scale];
+	this.camera[0] = this.camera[0] + d[0]*Math.min(0.1, 0.0000006*d[0]*d[0]);
+	this.camera[1] = this.camera[1] + d[1]*Math.min(0.1, 0.0000006*d[1]*d[1]);
+
+    // Do client prediction for all players
     for (var playeri in this.player_list)
     {
         var player = this.player_list[playeri];
@@ -443,13 +457,7 @@ Scene.prototype.draw = function() {
 
 	// Translate the whole scene according to the player's current location
 	this.context.translate(this.context.canvas.width/2, this.context.canvas.height/2);
-	if (this.player_list[ this.clientPlayerId ].alive)
-	    this.scale = 1;
 	this.context.scale(this.scale, this.scale);
-	var wantedPos = this.player_list[ this.clientPlayerId ].pos;
-	var d = [wantedPos[0]-this.camera[0], wantedPos[1]-this.camera[1]];
-	this.camera[0] = this.camera[0] + d[0]*Math.min(0.1, 0.0000006*d[0]*d[0]);
-	this.camera[1] = this.camera[1] + d[1]*Math.min(0.1, 0.0000006*d[1]*d[1]);
 	this.context.translate(-this.camera[0], -this.camera[1]);
 	
 	// Draw all prerendered image blocks
