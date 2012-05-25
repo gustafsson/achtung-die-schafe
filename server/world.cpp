@@ -56,7 +56,10 @@ pPlayer World::
     int aliveCount = 0;
     BOOST_FOREACH(Players::value_type& p, players)
         aliveCount += p.second->alive;
-    int r = (rand()*RAND_MAX + rand()) % aliveCount;
+    int r = 0;
+    if (aliveCount)
+        r = (rand()*RAND_MAX + rand()) % aliveCount;
+
     BOOST_FOREACH(Players::value_type& p, players)
     {
         if (!p.second->alive)
@@ -256,6 +259,9 @@ void World::
     QString playersData = QString("{\"players\": [%1]}")
         .arg(playerPosData);
     sender->broadcast(playersData);
+
+    pPlayer p = getRandomAlivePlayer();
+    if (p) this->startPos = p->pos;
 }
 
 

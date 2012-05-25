@@ -72,6 +72,8 @@ void Player::userData(QString data, World*world)
         pPlayer p = world->getAlivePlayerNearest(pos);
         if (p)
             pos = p->pos;
+        else
+            pos = world->startPos;
 
         pos.x += cos(a)*r;
         pos.y += sin(a)*r;

@@ -30,6 +30,7 @@ public:
     void lostPlayer(PlayerId);
     void newPlayer(PlayerId,QString);
 
+    Position startPos;
     Players players;
 private:
     bool hasCollisions(const Player&);

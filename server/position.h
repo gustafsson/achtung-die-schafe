@@ -11,6 +11,9 @@ class Position
 public:
     typedef long long T;
     // With 2 decimals below pixel resolution
+
+    Position() : x(0), y(0) {}
+
     T x, y;
 };
 
