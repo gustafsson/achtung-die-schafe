@@ -11,49 +11,17 @@ Patch::Patch()
 }
 
 
-QString Patch::
+void Patch::
         patchGrow(const Position& p)
 {
     QString patchAdd;
 
     if (pos.empty())
-    {
         bb.bottomRight = bb.topLeft = p;
-
-        Block::Location loc(p);
-        patchAdd =
-                QString("{"
-                    "\"id\":%3,"
-                    "\"color\":\"%4\","
-                    "\"blockX\":%5,"
-                    "\"blockY\":%6,"
-                    "\"p\":[[%1,%2]]"
-                "}")
-                    .arg(p.x*0.01f)
-                    .arg(p.y*0.01f)
-                    .arg(id)
-                    .arg(QColor(this->rgba).name())
-                    .arg(loc.x())
-                    .arg(loc.y());
-    } else {
+    else
         bb.grow(p);
 
-        Block::Location loc(pos.front());
-        patchAdd =
-                QString("{"
-                    "\"id\":%3,"
-                    "\"blockX\":%4,"
-                    "\"blockY\":%5,"
-                    "\"p\":[[%1,%2]]"
-                "}")
-                    .arg(p.x*0.01f)
-                    .arg(p.y*0.01f)
-                    .arg(id)
-                    .arg(loc.x())
-                    .arg(loc.y());
-    }
     pos.push_back(p);
-    return patchAdd;
 }
 
 

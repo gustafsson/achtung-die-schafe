@@ -83,7 +83,6 @@ void World::
     float hiddenTime = .2;
 //    boost::unordered_map<Block,QString> patchDiffPerBlock;
 
-    QString blockDiff;
     Block::Players toreassign;
     BOOST_FOREACH(WorldMap::value_type&bv, worldMap)
     {
@@ -101,9 +100,7 @@ void World::
             // Add to patch
             if (p.currentPatch)
             {
-                if (!blockDiff.isEmpty())
-                    blockDiff += ",";
-                blockDiff += p.currentPatch->patchGrow(p.pos);
+                p.currentPatch->patchGrow(p.pos);
             }
 
             bool newPatch = false;
@@ -142,9 +139,7 @@ void World::
                 p.currentPatch = patch.get();
                 patch->rgba = p.rgba;
                 b->patches[ ++patchId ] = patch;
-                if (!blockDiff.isEmpty())
-                    blockDiff += ",";
-                blockDiff += p.currentPatch->patchGrow(p.pos);
+                p.currentPatch->patchGrow(p.pos);
             }
         }
 
@@ -258,10 +253,9 @@ void World::
         return;
     }
 
-    QString individualData = QString("{\"players\": [%1], \"newTrails\": [%2]}")
-        .arg(playerPosData)
-        .arg(blockDiff);
-    sender->broadcast(individualData);
+    QString playersData = QString("{\"players\": [%1]}")
+        .arg(playerPosData);
+    sender->broadcast(playersData);
 }
 
 

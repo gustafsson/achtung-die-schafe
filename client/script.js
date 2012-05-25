@@ -211,13 +211,27 @@ Game.prototype.ServerConnection = function() {
         		    scene.player_list[msgplayer.id] = new Player(msgplayer.id, msgplayer.color);
 		        
 		        var player = scene.player_list[msgplayer.id];
-		        if (msgplayer.pos !== undefined)    player.pos = msgplayer.pos;
+                if (msgplayer.pos !== undefined) {
+                    if (player.lastPos !== undefined && player.gap === false && player.alive === true) {
+                        var plotp = [player.lastPos, msgplayer.pos];
+				        var plotcolor = player.color;
+                        var blockCoord = scene.getBlockCoordinates(msgplayer.pos);
+
+                        scene.blockPainter(blockCoord[0], blockCoord[1], function(ctx) {
+                            drawKurv(ctx, plotp, plotcolor);
+                        });
+
+                    }
+		            player.pos = msgplayer.pos.slice();
+                    player.lastPos = msgplayer.pos.slice();
+                }
+		        if (msgplayer.gap !== undefined)    player.gap = msgplayer.gap;
 		        if (msgplayer.dir !== undefined)    player.dir = msgplayer.dir;
 		        if (msgplayer.action !== undefined) player.action = msgplayer.action;
 		        if (msgplayer.alive !== undefined)  {player.alive = msgplayer.alive; scoreChanged = true;}
 		        if (msgplayer.score !== undefined)  {player.score = msgplayer.score; scoreChanged = true;}
-		        if (msgplayer.color !== undefined)  {player.color = msgplayer.color; scoreChanged = true;}
 		        if (msgplayer.name !== undefined)   {player.name = msgplayer.name; scoreChanged = true;}
+		        if (msgplayer.color !== undefined)  {player.color = msgplayer.color; scoreChanged = true;}
 		    }
 
             if (scoreChanged)
@@ -512,7 +526,7 @@ Scene.prototype.blockPainter = function(X,Y,f) {
 
 
 function Player(id,color) {
-    this.lastPos = [0,0];
+    this.lastPos = undefined;
     this.action = ''; // 'l', 'r' or ''
     this.pos = [0,0];
     this.dir = 0;
@@ -522,6 +536,7 @@ function Player(id,color) {
     this.alive = false;
     this.isSelf = false;
     this.score = 0;
+    this.gap = true;
 };
 
 

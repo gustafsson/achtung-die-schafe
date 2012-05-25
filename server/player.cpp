@@ -9,7 +9,8 @@
 #include "math.h"
 
 Player::Player(PlayerId id, QString name)
-:   dir(0), timeSinceVisible(0), currentPatch(0), turningLeft(false), turningRight(false), id_(id), name_(name), wasAlive_(-1), oldScore_(-1), wasDragged_(false)
+:   dir(0), timeSinceVisible(0), currentPatch(0), turningLeft(false), turningRight(false),
+    id_(id), name_(name), wasAlive_(-1), oldScore_(-1), wasDragged_(false)
 {
     alive = false;
     pos.x = 0;
@@ -122,7 +123,7 @@ QString Player::serializeIncremental() {
         QTextStream s(&r);
         s << "{\"id\":" << id_;
         bool any = false;
-        if (alive || wasDragged_)
+        if (alive || wasDragged_ || wasAlive_)
             s << ",\"pos\":[" << pos.x*0.01f << "," << pos.y*0.01f << "],\"action\":\"" << (turningRight == turningLeft ? "" : turningLeft ? "l" : "r") << "\",\"dir\":" << dir, any = true;
         if (wasAlive_ != alive)
             s << ",\"alive\":" << (alive?"true":"false"), any = true;

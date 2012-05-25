@@ -65,7 +65,7 @@ public:
     unsigned rgba, id;
     BoundingBox bb;
 
-    QString patchGrow(const Position& p);
+    void patchGrow(const Position& p);
     QString patchSerialize() const;
 };
 
