@@ -307,6 +307,11 @@ Game.prototype.ServerConnection = function() {
 	 this.server.onclose = function()
 	 {
     	game.serverMessage.innerHTML = "Connection to server lost. Reload the page to try again";
+    	if (game.scene.queuedDrawing !== undefined)
+    	{
+    	    // Stop drawing with a high framerate
+    	    window.clearTimeout(game.scene.queuedDrawing);
+	    }
 		window.console.log("Connection is closed..."); 
 	 };
 	 this.server.onopen = function()
