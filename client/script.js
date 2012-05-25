@@ -48,7 +48,7 @@ Game.prototype.loadImage = function(ctx,url,offset){
 
 
 Game.prototype.start = function() {
-    this.scene.onscreenCanvas.focus();
+    this.scene.canvas.focus();
     var game = this;
     
     var updatePlayerAction = function() {
@@ -61,11 +61,11 @@ Game.prototype.start = function() {
             player.action = '';
         else if (game.scene.keys[37])
             player.action = 'l';
-        else
+        else if (game.scene.keys[39])
             player.action = 'r';
     }
 
-	this.scene.onscreenCanvas.onkeydown = function(evt) {
+	this.scene.canvas.onkeydown = function(evt) {
 	    //evt = evt || window.event;
         evt.preventDefault();
 
@@ -76,7 +76,7 @@ Game.prototype.start = function() {
         updatePlayerAction();
     };
 
-	this.scene.onscreenCanvas.onkeyup = function(evt) {
+	this.scene.canvas.onkeyup = function(evt) {
 	    //evt = evt || window.event;
         evt.preventDefault();
 
@@ -96,18 +96,18 @@ Game.prototype.start = function() {
         e.preventDefault();
     };
     
-    if (this.scene.onscreenCanvas.addEventListener) {
+    if (this.scene.canvas.addEventListener) {
         // IE9, Chrome, Safari, Opera  
-        this.scene.onscreenCanvas.addEventListener("mousewheel", MouseWheelHandler, false);
+        this.scene.canvas.addEventListener("mousewheel", MouseWheelHandler, false);
         // Firefox  
-        this.scene.onscreenCanvas.addEventListener("DOMMouseScroll", MouseWheelHandler, false);
+        this.scene.canvas.addEventListener("DOMMouseScroll", MouseWheelHandler, false);
     }
     
-    this.scene.onscreenCanvas.onmousedown = function(evt) {
+    this.scene.canvas.onmousedown = function(evt) {
         game.scene.clickPos = [evt.clientX, evt.clientY];
 		window.console.log("onmousedown: " + evt.clientX + "," + evt.clientY);
     };
-    this.scene.onscreenCanvas.onmousemove = function(evt) {
+    this.scene.canvas.onmousemove = function(evt) {
         if (game.scene.clickPos === undefined)
             return;
 
@@ -120,11 +120,11 @@ Game.prototype.start = function() {
         game.server.send(msg);
 		window.console.log("onmousemove: " + msg);
     };
-    this.scene.onscreenCanvas.onmouseup = function(evt) {
+    this.scene.canvas.onmouseup = function(evt) {
         game.scene.clickPos = undefined;
 		window.console.log("onmouseup: " + evt.clientX + "," + evt.clientY);
     };
-    this.scene.onscreenCanvas.onmouseout = this.scene.onscreenCanvas.onmouseup;
+    this.scene.canvas.onmouseout = this.scene.canvas.onmouseup;
 
 	this.ServerConnection();
 
@@ -387,9 +387,7 @@ function drawKurv(ctx,p,color)
 
 
 function Scene(canvas) {
-	this.canvas = document.createElement('canvas');
-    this.canvas.width = canvas.width;
-    this.canvas.height = canvas.height;
+	this.canvas = canvas;
 	this.context = this.canvas.getContext('2d');
 	this.blockSize = 400;
     this.scale = 1;
@@ -406,10 +404,7 @@ function Scene(canvas) {
 	this.context.lineCap="round";
 
 	this.context.translate(this.context.canvas.width/2, this.context.canvas.height/2);
-
-    this.onscreenCanvas = canvas;
-    this.onscreenContext = this.onscreenCanvas.getContext('2d');
-	this.onscreenContext.clearRect(0, 0, canvas.width, canvas.height);
+	this.context.clearRect(0, 0, canvas.width, canvas.height);
 }
 
 Scene.prototype.continiousDraw = function() {
@@ -472,16 +467,14 @@ Scene.prototype.draw = function() {
         player.render(this.context);
     }
 
-	this.onscreenContext.clearRect(0, 0, this.context.canvas.width, this.context.canvas.height);
-    this.onscreenContext.drawImage(this.canvas, 0, 0);
 	if (this.text_to_display!=""){
-		this.onscreenContext.fillText(this.text_to_display, 100, 100);
+		this.context.fillText(this.text_to_display, 100, 100);
 	}
 };
 
 //will probably need some kind of timer to display for a certain amount of time
 Scene.prototype.writeOnCanvas = function(text) {
-    this.onscreenContext.fillText(text,100,100);
+    this.context.fillText(text,100,100);
 }
 
 Scene.prototype.getBlockCoordinates = function(p) {
