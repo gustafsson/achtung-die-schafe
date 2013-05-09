@@ -301,8 +301,8 @@ Game.prototype.ServerConnection = function() {
             if (scene.queuedDrawing===undefined)
                 scene.continiousDraw();
         }
-            
-		//server.send(""); // Not always necessary
+   
+		server.send(''); // Not always necessary, but works better on some browsers
 	 };
 	 this.server.onclose = function()
 	 {
