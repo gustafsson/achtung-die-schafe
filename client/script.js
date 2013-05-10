@@ -201,14 +201,13 @@ Game.prototype.ServerConnection = function() {
 		{
 		    var scoreChanged = false;
 
-			for (var playeri in message.players)
-		    {
-		        var msgplayer = message.players[playeri];
+			$.each(message.players, function(n, msgplayer) {
 		        if (msgplayer === undefined)
-		            continue;
+		            return;
 
-		        if (scene.player_list[msgplayer.id] === undefined)
-        		    scene.player_list[msgplayer.id] = new Player(msgplayer.id, msgplayer.color);
+		        if (scene.player_list[msgplayer.id] === undefined) {
+                    scene.player_list[msgplayer.id] = new Player(msgplayer.id, msgplayer.color);
+                }
 		        
 		        var player = scene.player_list[msgplayer.id];
                 if (msgplayer.pos !== undefined) {
@@ -232,23 +231,25 @@ Game.prototype.ServerConnection = function() {
 		        if (msgplayer.score !== undefined)  {player.score = msgplayer.score; scoreChanged = true;}
 		        if (msgplayer.name !== undefined)   {player.name = msgplayer.name; scoreChanged = true;}
 		        if (msgplayer.color !== undefined)  {player.color = msgplayer.color; scoreChanged = true;}
-		    }
+		    });
 
             if (scoreChanged)
             {
                 var htmlscore="Scoreboard:<br/>";
-                var sortedPlayers = scene.player_list.slice().sort(function(a,b){return a.score<b.score;});
-                for (var playeri in sortedPlayers)
-                {
-                    var player = sortedPlayers[playeri];
+                var sortedPlayers = [];
+                $.each(scene.player_list, function(n,player) {
+                    sortedPlayers.push(player);
+                });
+                sortedPlayers.sort(function(a,b){return a.score<b.score;});
+                $.each(sortedPlayers, function(n,player) {
                     if (player===undefined)
-                        continue;
+                        return;
 
                     htmlscore += "<span style='color:" + player.color + "'>" + player.name + "</span>: " + player.score;
                     if (!player.alive)
 	                    htmlscore += " (observer)";
                     htmlscore += "<br/>";
-                }
+                });
                 document.getElementById("scoreboard").innerHTML = htmlscore;
             }
         }
@@ -397,9 +398,9 @@ function Scene(canvas) {
 	this.blockSize = 400;
     this.scale = 1;
     this.camera = [0, 0];
-    this.blocks = [[]];
+    this.blocks = {};
     this.clientPlayerId = undefined;
-    this.player_list = [];
+    this.player_list = {};
 	this.text_to_display = "";
     this.keys = [];
 
@@ -440,11 +441,9 @@ Scene.prototype.simulate = function(dt) {
 	this.camera[1] = this.camera[1] + d[1]*Math.min(0.1, 0.0000006*d[1]*d[1]);
 
     // Do client prediction for all players
-    for (var playeri in this.player_list)
-    {
-        var player = this.player_list[playeri];
+    $.each(this.player_list, function(n, player) {
         player.simulate(dt);
-    }
+    });
 }
 
 Scene.prototype.draw = function() {
@@ -474,13 +473,14 @@ Scene.prototype.draw = function() {
     }
 
     // Draw all players
-    for (var playeri in this.player_list)
-    {
-        var player = this.player_list[playeri];
-        player.render(this.context);
-    }
+    var context = this.context;
+    $.each(this.player_list, function(n, player) {
+        player.render(context);
+    });
 
-	if (this.text_to_display!=""){
+	if (this.text_to_display !== ""){
+        this.context.setTransform(1, 0, 0, 1, 0, 0);
+        this.context.scale(2, 2);
 		this.context.fillText(this.text_to_display, 100, 100);
 	}
 };
@@ -496,18 +496,12 @@ Scene.prototype.getBlockCoordinates = function(p) {
 
 
 Scene.prototype.getBlock = function(x,y) {
-    var blockOffset = 1000000;
-    var yblocks = this.blocks[x+blockOffset];
-    return yblocks!==undefined ? yblocks[y+blockOffset] : undefined;
+    return this.blocks[x + ':' + y];
 };
 
 
 Scene.prototype.setBlock = function(x,y,block) {
-    var blockOffset = 1000000;
-    var yblocks = this.blocks[x+blockOffset];
-    if (yblocks===undefined)
-        this.blocks[x+blockOffset] = yblocks = [];
-    yblocks[y+blockOffset] = block;
+    this.blocks[x + ':' + y] = block;
 };
 
 
