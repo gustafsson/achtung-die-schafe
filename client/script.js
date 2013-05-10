@@ -105,7 +105,7 @@ Game.prototype.start = function() {
     
     this.scene.canvas.onmousedown = function(evt) {
         game.scene.clickPos = [evt.clientX, evt.clientY];
-		window.console.log("onmousedown: " + evt.clientX + "," + evt.clientY);
+		//window.console.log("onmousedown: " + evt.clientX + "," + evt.clientY);
     };
     this.scene.canvas.onmousemove = function(evt) {
         if (game.scene.clickPos === undefined)
@@ -118,11 +118,11 @@ Game.prototype.start = function() {
         game.scene.camera[1] -= d[1];
         var msg = 'm' + d[0] + "," + d[1];
         game.server.send(msg);
-		window.console.log("onmousemove: " + msg);
+		//window.console.log("onmousemove: " + msg);
     };
     this.scene.canvas.onmouseup = function(evt) {
         game.scene.clickPos = undefined;
-		window.console.log("onmouseup: " + evt.clientX + "," + evt.clientY);
+		//window.console.log("onmouseup: " + evt.clientX + "," + evt.clientY);
     };
     this.scene.canvas.onmouseout = this.scene.canvas.onmouseup;
 
