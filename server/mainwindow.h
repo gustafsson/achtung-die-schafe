@@ -25,8 +25,11 @@ private slots:
     void timestep();
     void updateGui();
     void alertPlayers();
+    void restartServer();
 
 private:
+    QStringList last_score_str;
+
     Ui::MainWindow *ui;
     World world;
     Incoming *incoming;
