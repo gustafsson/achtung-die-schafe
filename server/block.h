@@ -63,7 +63,7 @@ typedef std::shared_ptr<Block> pBlock;
 
 namespace std{
     template<>
-    class hash<Block::Location>{
+    struct hash<Block::Location>{
     public:
         inline size_t operator()(const Block::Location& l) const
         {
