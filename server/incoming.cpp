@@ -40,7 +40,9 @@ Incoming::~Incoming()
 
 void Incoming::sendPlayerData(PlayerId id, QString data)
 {
+#ifdef _DEBUG
     Logger::logMessage(QString("Server to player %2: %1").arg(data).arg(id));
+#endif
     clients[ id ]->sendTextMessage( data );
 
     // If the client is too far behind and is blocking resources, drop it
@@ -140,7 +142,7 @@ void Incoming::onDataReceived(QString data)
 }
 
 
-void Incoming::onPong(quint64 elapsedTime,const QByteArray& payload)
+void Incoming::onPong(quint64 elapsedTime,const QByteArray&)
 {
     Logger::logMessage( "ping: " + QString::number(elapsedTime) + " ms" );
 }
