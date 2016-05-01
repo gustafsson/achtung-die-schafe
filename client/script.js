@@ -344,8 +344,11 @@ Game.prototype.ServerConnection = function() {
 
         if (scene.clientPlayerId !== undefined && scene.player_list[scene.clientPlayerId] !== undefined)
         {
-            if (scene.queuedDrawing===undefined)
-                scene.continiousDraw();
+            if (scene.keep_drawing===false)
+            {
+                scene.keep_drawing = true;
+                window.requestAnimationFrame(scene.continiousDraw);
+            }
         }
 
 		server.send(''); // Not always necessary, but works better on some browsers
@@ -353,11 +356,8 @@ Game.prototype.ServerConnection = function() {
 	 this.server.onclose = function()
 	 {
     	game.serverMessage.innerHTML = "Connection to server lost. Reload the page to try again";
-    	if (game.scene.queuedDrawing !== undefined)
-    	{
-    	    // Stop drawing with a high framerate
-    	    window.clearTimeout(game.scene.queuedDrawing);
-	    }
+         // Stop drawing with a high framerate
+        scene.keep_drawing = false;
 		window.console.log("Connection is closed...");
 	 };
 	 this.server.onopen = function()
@@ -449,7 +449,8 @@ function Scene(canvas) {
 	this.text_to_display = "";
     this.keys = [];
 
-    this.queuedDrawing = undefined;
+    this.keep_drawing = false;
+    this.prevframe = null;
 
 	this.context.lineWidth=10;
 	this.context.lineCap="round";
@@ -458,32 +459,33 @@ function Scene(canvas) {
 	this.context.clearRect(0, 0, canvas.width, canvas.height);
 }
 
-Scene.prototype.continiousDraw = function() {
-    var targetFps = 60;
+Scene.prototype.continiousDraw = function(timestamp) {
+    if (!game.scene.prevframe) game.scene.prevframe = timestamp;
+    var progress_ms = timestamp - game.scene.prevframe;
+    game.scene.prevframe = timestamp;
 
-    var start = new Date();
-        game.scene.simulate(1/targetFps);
-        game.scene.draw();
-    var stop = new Date();
+    game.scene.simulate(progress_ms * 0.001);
+    game.scene.draw();
 
-    var diff = Math.max(2, 1000/targetFps - (stop-start));
-    game.scene.queuedDrawing = window.setTimeout(game.scene.continiousDraw, diff);
+    if (game.scene.keep_drawing)
+        window.requestAnimationFrame(game.scene.continiousDraw);
 }
 
 Scene.prototype.simulate = function(dt) {
     if (this.keys[38]) // up arrow
-        this.scale = this.scale * Math.exp(0.1);
+        this.scale = this.scale * Math.exp(6.*dt);
     if (this.keys[40]) // down arrow
-        this.scale = this.scale * Math.exp(-0.1);
+        this.scale = this.scale * Math.exp(-6.*dt);
 	//if (this.player_list[ this.clientPlayerId ].alive)
 	//    this.scale = 1;
-	this.scale = this.scale*0.99 + 1*0.01;
+    a = 0.5*dt;
+    this.scale = this.scale*(1-a) + 1*a;
 	this.scale = Math.max(0.01, Math.min(5, this.scale));
 
 	var wantedPos = this.player_list[ this.clientPlayerId ].pos;
 	var d = [(wantedPos[0]-this.camera[0])*this.scale, (wantedPos[1]-this.camera[1])*this.scale];
-	this.camera[0] = this.camera[0] + d[0]*Math.min(0.1, 0.0000006*d[0]*d[0]);
-	this.camera[1] = this.camera[1] + d[1]*Math.min(0.1, 0.0000006*d[1]*d[1]);
+    this.camera[0] = this.camera[0] + d[0]*Math.min(0.3, 0.0004*dt*d[0]*d[0]);
+    this.camera[1] = this.camera[1] + d[1]*Math.min(0.3, 0.0004*dt*d[1]*d[1]);
 
     // Do client prediction for all players
     $.each(this.player_list, function(n, player) {
@@ -603,9 +605,9 @@ Player.prototype.simulate = function(dt) {
     if (!this.alive)
         return;
 
-    if (this.action=='l')
+    if (this.action==='l')
         this.dir -= 3.14*dt;
-    if (this.action=='r')
+    if (this.action==='r')
         this.dir += 3.14*dt;
 
     this.pos[0] += dt*130*Math.cos(this.dir);
