@@ -171,5 +171,5 @@ void MainWindow::restartServer()
     connect(incoming, SIGNAL(lostPlayer(PlayerId)), SLOT(lostPlayer(PlayerId)));
     connect(incoming, SIGNAL(gotPlayerData(PlayerId,QString)), SLOT(gotPlayerData(PlayerId,QString)));
 
-    ui->lineEdit_2->setText("10*60");
+    ui->lineEdit_2->setText("300");
 }
