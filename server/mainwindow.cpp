@@ -73,6 +73,7 @@ void MainWindow::timestep()
 
     int left = target - t.elapsed();
     if (left < 1) left = 1;
+
     QTimer::singleShot(left, this, SLOT(timestep()));
 }
 
@@ -100,8 +101,8 @@ void MainWindow::updateGui()
             .arg(p.score)
             .arg(p.name())
             .arg(p.id())
-            .arg(QTime().addMSecs(now-p.timestamp).toString(Qt::ISODate))
-            .arg(QTime().addMSecs(p.playtime+=p.alive?dt:0).toString(Qt::ISODate))
+            .arg(QTime(0,0).addMSecs(now-p.timestamp).toString())
+            .arg(QTime(0,0).addMSecs(p.playtime+=p.alive?dt:0).toString())
             .arg(p.alive?"":" (observer)");
     }
 
