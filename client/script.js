@@ -7,11 +7,11 @@
 var game;
 
 function init(){
-	var scene = new Scene(document.getElementById("myCanvas"));
-	game = new Game(scene);
+    var scene = new Scene(document.getElementById("myCanvas"));
+    game = new Game(scene);
 
-	sheepNr=Math.floor((Math.random()*1000000)+1);
-	document.getElementById("nameInput").value="Sheep"+sheepNr;
+    sheepNr=Math.floor((Math.random()*1000000)+1);
+    document.getElementById("nameInput").value="Sheep"+sheepNr;
 }
 
 function isMobile() {
@@ -30,13 +30,13 @@ function startGame(){
 
 
 function Game(scene) {
-	this.sheep_death_toll = document.getElementById("sheep_death_toll");
+    this.sheep_death_toll = document.getElementById("sheep_death_toll");
     this.count_death=0;
     this.serverMessage = document.getElementById("serverMessage");
     this.serverMessage.innerHTML = "Achtung, die Schafe... Press play then space to start!";
     this.scene = scene;
 
-	this.loadImage(scene.context,"welcome.png",[-400, -300]);
+    this.loadImage(scene.context,"welcome.png",[-400, -300]);
 }
 
 function fullScreen(){
@@ -45,15 +45,15 @@ function fullScreen(){
 }
 
 Game.prototype.loadImage = function(ctx,url,offset){
-	this.ctx = ctx;
-	this.url = url;
-	try {
-		var imageObj = new Image();
-		imageObj.onload = function(){
-			ctx.drawImage(this, offset[0], offset[1]);
-		};
-		imageObj.src = url;
-	} catch (err) {}
+    this.ctx = ctx;
+    this.url = url;
+    try {
+        var imageObj = new Image();
+        imageObj.onload = function(){
+            ctx.drawImage(this, offset[0], offset[1]);
+        };
+        imageObj.src = url;
+    } catch (err) {}
 }
 
 
@@ -105,23 +105,23 @@ Game.prototype.start = function() {
         updatePlayerAction();
     }, false);
 
-	this.scene.canvas.onkeydown = function(evt) {
-	    //evt = evt || window.event;
+    this.scene.canvas.onkeydown = function(evt) {
+        //evt = evt || window.event;
         evt.preventDefault();
 
-	    var keyCode = evt.keyCode || evt.which;
-	    game.server.send('+'+keyCode);
+        var keyCode = evt.keyCode || evt.which;
+        game.server.send('+'+keyCode);
 
         game.scene.keys[keyCode] = true;
         updatePlayerAction();
     };
 
-	this.scene.canvas.onkeyup = function(evt) {
-	    //evt = evt || window.event;
+    this.scene.canvas.onkeyup = function(evt) {
+        //evt = evt || window.event;
         evt.preventDefault();
 
-	    var keyCode = evt.keyCode || evt.which;
-	    game.server.send('-'+keyCode);
+        var keyCode = evt.keyCode || evt.which;
+        game.server.send('-'+keyCode);
 
         game.scene.keys[keyCode] = false;
         updatePlayerAction();
@@ -145,7 +145,7 @@ Game.prototype.start = function() {
 
     this.scene.canvas.onmousedown = function(evt) {
         game.scene.clickPos = [evt.clientX, evt.clientY];
-		//window.console.log("onmousedown: " + evt.clientX + "," + evt.clientY);
+        //window.console.log("onmousedown: " + evt.clientX + "," + evt.clientY);
     };
     this.scene.canvas.onmousemove = function(evt) {
         var player = game.scene.player_list[game.scene.clientPlayerId];
@@ -165,11 +165,11 @@ Game.prototype.start = function() {
     };
     this.scene.canvas.onmouseup = function(evt) {
         game.scene.clickPos = undefined;
-		//window.console.log("onmouseup: " + evt.clientX + "," + evt.clientY);
+        //window.console.log("onmouseup: " + evt.clientX + "," + evt.clientY);
     };
     this.scene.canvas.onmouseout = this.scene.canvas.onmouseup;
 
-	this.ServerConnection();
+    this.ServerConnection();
 
 };
 
@@ -215,8 +215,8 @@ Game.prototype.ServerConnection = function() {
     };
     this.server.onmessage = function (evt)
     {
-		//window.console.log("WebSocket: " + evt.data);
-		//var message = eval('(' + evt.data + ')');
+        //window.console.log("WebSocket: " + evt.data);
+        //var message = eval('(' + evt.data + ')');
         var message;
         try {
             message = JSON.parse(evt.data);
@@ -226,37 +226,37 @@ Game.prototype.ServerConnection = function() {
             return;
         }
 
-		if (message.serverMessage !== undefined)
-		    game.serverMessage.innerHTML = message.serverMessage;
+        if (message.serverMessage !== undefined)
+            game.serverMessage.innerHTML = message.serverMessage;
 
-		if (message.serverAlert !== undefined)
-		    scene.text_to_display=message.serverAlert;
+        if (message.serverAlert !== undefined)
+            scene.text_to_display=message.serverAlert;
 
-		if (message.clientPlayerId !== undefined)
-		    scene.clientPlayerId = message.clientPlayerId;
+        if (message.clientPlayerId !== undefined)
+            scene.clientPlayerId = message.clientPlayerId;
 
-		if (message.playerDisconnected !== undefined)
-		{
-		    delete(scene.player_list[message.playerDisconnected]);
+        if (message.playerDisconnected !== undefined)
+        {
+            delete(scene.player_list[message.playerDisconnected]);
         }
 
-		if (message.players !== undefined)
-		{
-		    var scoreChanged = false;
+        if (message.players !== undefined)
+        {
+            var scoreChanged = false;
 
-			$.each(message.players, function(n, msgplayer) {
-		        if (msgplayer === undefined)
-		            return;
+            $.each(message.players, function(n, msgplayer) {
+                if (msgplayer === undefined)
+                    return;
 
-		        if (scene.player_list[msgplayer.id] === undefined) {
+                if (scene.player_list[msgplayer.id] === undefined) {
                     scene.player_list[msgplayer.id] = new Player(msgplayer.id, msgplayer.color);
                 }
 
-		        var player = scene.player_list[msgplayer.id];
+                var player = scene.player_list[msgplayer.id];
                 if (msgplayer.pos !== undefined) {
                     if (player.lastPos !== undefined && player.gap === false && player.alive === true) {
                         var plotp = [player.lastPos, msgplayer.pos];
-				        var plotcolor = player.color;
+                        var plotcolor = player.color;
                         var blockCoord = scene.getBlockCoordinates(msgplayer.pos);
 
                         scene.blockPainter(blockCoord[0], blockCoord[1], function(ctx) {
@@ -264,17 +264,17 @@ Game.prototype.ServerConnection = function() {
                         });
 
                     }
-		            player.pos = msgplayer.pos.slice();
+                    player.pos = msgplayer.pos.slice();
                     player.lastPos = msgplayer.pos.slice();
                 }
-		        if (msgplayer.gap !== undefined)    player.gap = msgplayer.gap;
-		        if (msgplayer.dir !== undefined)    player.dir = msgplayer.dir;
-		        if (msgplayer.action !== undefined) player.action = msgplayer.action;
-		        if (msgplayer.alive !== undefined)  {player.alive = msgplayer.alive; scoreChanged = true;}
-		        if (msgplayer.score !== undefined)  {player.score = msgplayer.score; scoreChanged = true;}
-		        if (msgplayer.name !== undefined)   {player.name = msgplayer.name; scoreChanged = true;}
-		        if (msgplayer.color !== undefined)  {player.color = msgplayer.color; scoreChanged = true;}
-		    });
+                if (msgplayer.gap !== undefined)    player.gap = msgplayer.gap;
+                if (msgplayer.dir !== undefined)    player.dir = msgplayer.dir;
+                if (msgplayer.action !== undefined) player.action = msgplayer.action;
+                if (msgplayer.alive !== undefined)  {player.alive = msgplayer.alive; scoreChanged = true;}
+                if (msgplayer.score !== undefined)  {player.score = msgplayer.score; scoreChanged = true;}
+                if (msgplayer.name !== undefined)   {player.name = msgplayer.name; scoreChanged = true;}
+                if (msgplayer.color !== undefined)  {player.color = msgplayer.color; scoreChanged = true;}
+            });
 
             if (scoreChanged)
             {
@@ -290,19 +290,19 @@ Game.prototype.ServerConnection = function() {
 
                     htmlscore += "<span style='color:" + player.color + "'>" + player.name + "</span>: " + player.score;
                     if (!player.alive)
-	                    htmlscore += " (observer)";
+                        htmlscore += " (observer)";
                     htmlscore += "<br/>";
                 });
                 document.getElementById("scoreboard").innerHTML = htmlscore;
             }
         }
 
-		if (message.newTrails !== undefined)
-		    for (var i=0; i<message.newTrails.length; i++)
-		    {
-		        var trail = message.newTrails[i];
-		        if (0 === trail.length)
-		            continue;
+        if (message.newTrails !== undefined)
+            for (var i=0; i<message.newTrails.length; i++)
+            {
+                var trail = message.newTrails[i];
+                if (0 === trail.length)
+                    continue;
 
                 var block = scene.getBlockOrCreate(trail.blockX, trail.blockY);
 
@@ -312,35 +312,35 @@ Game.prototype.ServerConnection = function() {
                 var plotcolor;
                 if (kurv === undefined)
                 {
-				    plotp = block.addKurv(new Kurv(trail));
-				    plotcolor = trail.color;
-			    }
+                    plotp = block.addKurv(new Kurv(trail));
+                    plotcolor = trail.color;
+                }
                 else
                 {
                     plotp = block.appendKurv(trail.id, trail.p);
-				    plotcolor = block.getKurv(trail.id).color;
+                    plotcolor = block.getKurv(trail.id).color;
                 }
 
                 scene.blockPainter(trail.blockX, trail.blockY, function(ctx) {
                     drawKurv(ctx, plotp, plotcolor);
                 });
-		    }
+            }
 
-		if (message.deathBySheep !== undefined){
-			game.serverMessage.innerHTML = "Told you to stay in the fight... You got trampled by a sheep!<p></p><p></p><p><strong>Press space to restart!</strong></p>";
-			max_death=10;
-			if (game.count_death<=max_death){
-				game.sheep_death_toll.innerHTML += '<img src="deathBySheep.png" alt="SheepKilledYou" width="80" height="60"/> ';
-				game.count_death++;
-			}
-			game.loadImage(scene.context,"deathBySheep.png",[171, 189]);
+        if (message.deathBySheep !== undefined){
+            game.serverMessage.innerHTML = "Told you to stay in the fight... You got trampled by a sheep!<p></p><p></p><p><strong>Press space to restart!</strong></p>";
+            max_death=10;
+            if (game.count_death<=max_death){
+                game.sheep_death_toll.innerHTML += '<img src="deathBySheep.png" alt="SheepKilledYou" width="80" height="60"/> ';
+                game.count_death++;
+            }
+            game.loadImage(scene.context,"deathBySheep.png",[171, 189]);
             sendMessage('Lonely, I\'m so lonely');
-		}
+        }
 
-		if (message.deathByWall !== undefined){
-			game.serverMessage.innerHTML = "Straight into the wall... Press space to try again<p></p><p></p><p>Hint: you're an observer... try pressing up and down arrows!";
+        if (message.deathByWall !== undefined){
+            game.serverMessage.innerHTML = "Straight into the wall... Press space to try again<p></p><p></p><p>Hint: you're an observer... try pressing up and down arrows!";
             sendMessage('Oups!');
-		}
+        }
 
         if (scene.clientPlayerId !== undefined && scene.player_list[scene.clientPlayerId] !== undefined)
         {
@@ -351,26 +351,26 @@ Game.prototype.ServerConnection = function() {
             }
         }
 
-		server.send(''); // Not always necessary, but works better on some browsers
-	 };
-	 this.server.onclose = function()
-	 {
-    	game.serverMessage.innerHTML = "Connection to server lost. Reload the page to try again";
+        server.send(''); // Not always necessary, but works better on some browsers
+     };
+     this.server.onclose = function()
+     {
+        game.serverMessage.innerHTML = "Connection to server lost. Reload the page to try again";
          // Stop drawing with a high framerate
         scene.keep_drawing = false;
-		window.console.log("Connection is closed...");
-	 };
-	 this.server.onopen = function()
-	 {
-		//alert($('<div/>').text(document.getElementById("nameInput").value).html());
-		server.send('name=' + document.getElementById("nameInput").value);
-		document.getElementById("form").style.display = "none";
-	 };
+        window.console.log("Connection is closed...");
+     };
+     this.server.onopen = function()
+     {
+        //alert($('<div/>').text(document.getElementById("nameInput").value).html());
+        server.send('name=' + document.getElementById("nameInput").value);
+        document.getElementById("form").style.display = "none";
+     };
   }
   else
   {
-	 // The browser doesn't support WebSocket
-	 window.console.log("WebSocket NOT supported by your Browser!");
+     // The browser doesn't support WebSocket
+     window.console.log("WebSocket NOT supported by your Browser!");
   }
 };
 
@@ -390,17 +390,17 @@ function Block(blockX,blockY,size) {
     this.preRendered.width = size;
     this.preRendered.height = size;
     this.preRenderedContext = this.preRendered.getContext('2d');
-	this.preRenderedContext.clearRect(0, 0, size, size);
-	this.preRenderedContext.translate(-blockX*size,-blockY*size);
-	this.preRenderedContext.lineWidth=10;
-	this.preRenderedContext.lineCap="round";
+    this.preRenderedContext.clearRect(0, 0, size, size);
+    this.preRenderedContext.translate(-blockX*size,-blockY*size);
+    this.preRenderedContext.lineWidth=10;
+    this.preRenderedContext.lineCap="round";
 
     this.kurv_list = [];
 }
 
 
 Block.prototype.getKurv = function(id) {
-	return this.kurv_list[id];
+    return this.kurv_list[id];
 };
 
 
@@ -426,37 +426,37 @@ Block.prototype.appendKurv = function(id,p) {
 
 function drawKurv(ctx,p,color)
 {
-	ctx.beginPath();
-	ctx.strokeStyle = color;
+    ctx.beginPath();
+    ctx.strokeStyle = color;
 
-	ctx.moveTo(p[0][0],p[0][1]);
-	for (var j=1; j<p.length; j++)
-		ctx.lineTo(p[j][0],p[j][1]);
+    ctx.moveTo(p[0][0],p[0][1]);
+    for (var j=1; j<p.length; j++)
+        ctx.lineTo(p[j][0],p[j][1]);
 
-	ctx.stroke();
+    ctx.stroke();
 }
 
 
 function Scene(canvas) {
-	this.canvas = canvas;
-	this.context = this.canvas.getContext('2d');
-	this.blockSize = 400;
+    this.canvas = canvas;
+    this.context = this.canvas.getContext('2d');
+    this.blockSize = 400;
     this.scale = 1;
     this.camera = [0, 0];
     this.blocks = {};
     this.clientPlayerId = undefined;
     this.player_list = {};
-	this.text_to_display = "";
+    this.text_to_display = "";
     this.keys = [];
 
     this.keep_drawing = false;
     this.prevframe = null;
 
-	this.context.lineWidth=10;
-	this.context.lineCap="round";
+    this.context.lineWidth=10;
+    this.context.lineCap="round";
 
-	this.context.translate(this.context.canvas.width/2, this.context.canvas.height/2);
-	this.context.clearRect(0, 0, canvas.width, canvas.height);
+    this.context.translate(this.context.canvas.width/2, this.context.canvas.height/2);
+    this.context.clearRect(0, 0, canvas.width, canvas.height);
 }
 
 Scene.prototype.continiousDraw = function(timestamp) {
@@ -476,14 +476,14 @@ Scene.prototype.simulate = function(dt) {
         this.scale = this.scale * Math.exp(6.*dt);
     if (this.keys[40]) // down arrow
         this.scale = this.scale * Math.exp(-6.*dt);
-	//if (this.player_list[ this.clientPlayerId ].alive)
-	//    this.scale = 1;
+    //if (this.player_list[ this.clientPlayerId ].alive)
+    //    this.scale = 1;
     a = 0.5*dt;
     this.scale = this.scale*(1-a) + 1*a;
-	this.scale = Math.max(0.01, Math.min(5, this.scale));
+    this.scale = Math.max(0.01, Math.min(5, this.scale));
 
-	var wantedPos = this.player_list[ this.clientPlayerId ].pos;
-	var d = [(wantedPos[0]-this.camera[0])*this.scale, (wantedPos[1]-this.camera[1])*this.scale];
+    var wantedPos = this.player_list[ this.clientPlayerId ].pos;
+    var d = [(wantedPos[0]-this.camera[0])*this.scale, (wantedPos[1]-this.camera[1])*this.scale];
     this.camera[0] = this.camera[0] + d[0]*Math.min(0.3, 0.0004*dt*d[0]*d[0]);
     this.camera[1] = this.camera[1] + d[1]*Math.min(0.3, 0.0004*dt*d[1]*d[1]);
 
@@ -495,22 +495,22 @@ Scene.prototype.simulate = function(dt) {
 
 Scene.prototype.draw = function() {
 
-	// Reset the transformation matrix
-	this.context.setTransform(1, 0, 0, 1, 0, 0);
+    // Reset the transformation matrix
+    this.context.setTransform(1, 0, 0, 1, 0, 0);
 
-	// Clean everything
-	this.context.clearRect(0, 0, this.context.canvas.width, this.context.canvas.height);
+    // Clean everything
+    this.context.clearRect(0, 0, this.context.canvas.width, this.context.canvas.height);
 
-	// Translate the whole scene according to the player's current location
-	this.context.translate(this.context.canvas.width/2, this.context.canvas.height/2);
-	this.context.scale(this.scale, this.scale);
-	this.context.translate(-this.camera[0], -this.camera[1]);
+    // Translate the whole scene according to the player's current location
+    this.context.translate(this.context.canvas.width/2, this.context.canvas.height/2);
+    this.context.scale(this.scale, this.scale);
+    this.context.translate(-this.camera[0], -this.camera[1]);
 
-	// Draw all prerendered image blocks
-	for (var x=Math.floor((this.camera[0] - this.context.canvas.width/(2*this.scale))/this.blockSize);
-	         x<=Math.ceil((this.camera[0] + this.context.canvas.width/(2*this.scale))/this.blockSize); x++)
-	for (var y=Math.floor((this.camera[1] - this.context.canvas.height/(2*this.scale))/this.blockSize);
-	         y<=Math.ceil((this.camera[1] + this.context.canvas.height/(2*this.scale))/this.blockSize); y++)
+    // Draw all prerendered image blocks
+    for (var x=Math.floor((this.camera[0] - this.context.canvas.width/(2*this.scale))/this.blockSize);
+             x<=Math.ceil((this.camera[0] + this.context.canvas.width/(2*this.scale))/this.blockSize); x++)
+    for (var y=Math.floor((this.camera[1] - this.context.canvas.height/(2*this.scale))/this.blockSize);
+             y<=Math.ceil((this.camera[1] + this.context.canvas.height/(2*this.scale))/this.blockSize); y++)
     {
         var block = this.getBlock(x,y);
         if (block === undefined)
@@ -525,11 +525,11 @@ Scene.prototype.draw = function() {
         player.render(context);
     });
 
-	if (this.text_to_display !== ""){
+    if (this.text_to_display !== ""){
         this.context.setTransform(1, 0, 0, 1, 0, 0);
         this.context.scale(2, 2);
-		this.context.fillText(this.text_to_display, 100, 100);
-	}
+        this.context.fillText(this.text_to_display, 100, 100);
+    }
 };
 
 //will probably need some kind of timer to display for a certain amount of time
@@ -578,7 +578,7 @@ function Player(id,color) {
     this.pos = [0,0];
     this.dir = 0;
     this.id = id;
-	this.name = "";
+    this.name = "";
     this.color = color;
     this.alive = false;
     this.isSelf = false;
@@ -590,13 +590,13 @@ function Player(id,color) {
 Player.prototype.render = function(ctx) {
     if (this.alive)
     {
-	    ctx.beginPath();
-	    ctx.strokeStyle = this.color;
+        ctx.beginPath();
+        ctx.strokeStyle = this.color;
         ctx.arc(this.pos[0], this.pos[1], 5, 0 , 2 * Math.PI, false);
-	    ctx.fill();
+        ctx.fill();
 
-	    //if (!this.isSelf)
-        //	ctx.strokeText(this.id, this.pos[0], this.pos[1] );
+        //if (!this.isSelf)
+        //  ctx.strokeText(this.id, this.pos[0], this.pos[1] );
     }
 };
 
