@@ -57,7 +57,6 @@ Game.prototype.loadImage = function(ctx,url,offset){
 }
 
 
-
 Game.prototype.start = function() {
     this.scene.canvas.focus();
     var game = this;
@@ -78,22 +77,29 @@ Game.prototype.start = function() {
     // Listen to touch events and send to server
     game.scene.canvas.addEventListener('touchstart', function(event) {
         var player = game.scene.player_list[game.scene.clientPlayerId];
-        if (event.targetTouches.length == 1)
+        if (event.targetTouches.length === 1)
+        {
             var touch = event.targetTouches[0];
-        if (player.alive === true){
-            if (touch.pageX > game.scene.canvas.style.left+game.scene.canvas.width/2)
-                game.server.send('+'+39);
+
+            if (player.alive === true)
+            {
+                if (touch.pageX > game.scene.canvas.style.left+game.scene.canvas.width/2)
+                    keyCode = 39;
+                else
+                    keyCode = 37;
+            }
             else
-                game.server.send('+'+37);
+                keyCode = 32;
+
+            game.server.send('+'+keyCode);
+            game.scene.keys[keyCode] = false;
+
+            updatePlayerAction();
         }
-        else
-            game.server.send('+'+32);
-        updatePlayerAction();
     }, false);
 
     // Listen to touch events and send to server
     game.scene.canvas.addEventListener('touchend', function(event) {
-        var touch = event.targetTouches[0];
         game.server.send('-'+39);
         game.server.send('-'+37);
         updatePlayerAction();
