@@ -251,7 +251,7 @@ void World::
     if (firstPlayer)
     {
         // no players had any data to send
-        sender->broadcast("{}");
+        //sender->broadcast("{}");
         return;
     }
 
