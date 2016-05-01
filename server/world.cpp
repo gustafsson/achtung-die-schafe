@@ -5,7 +5,6 @@
 #include <QColor>
 #include <QTextStream>
 
-#include <boost/foreach.hpp>
 #include <cmath>
 
 #define WARNING_DISTANCE (400ll*100ll)
@@ -33,7 +32,7 @@ pPlayer World::
     Position::T D = LLONG_MAX;
     pPlayer best;
 
-    BOOST_FOREACH(Players::value_type& pv, players)
+    for(Players::value_type& pv: players)
     {
         if (!pv.second->alive)
             continue;
@@ -54,13 +53,13 @@ pPlayer World::
         getRandomAlivePlayer()
 {
     int aliveCount = 0;
-    BOOST_FOREACH(Players::value_type& p, players)
+    for(Players::value_type& p: players)
         aliveCount += p.second->alive;
     int r = 0;
     if (aliveCount)
         r = (rand()*RAND_MAX + rand()) % aliveCount;
 
-    BOOST_FOREACH(Players::value_type& p, players)
+    for(Players::value_type& p: players)
     {
         if (!p.second->alive)
             continue;
@@ -87,12 +86,12 @@ void World::
 //    boost::unordered_map<Block,QString> patchDiffPerBlock;
 
     Block::Players toreassign;
-    BOOST_FOREACH(WorldMap::value_type&bv, worldMap)
+    for(WorldMap::value_type&bv: worldMap)
     {
         pBlock& b = bv.second;
 
         Block::Players toremove;
-        BOOST_FOREACH(const pPlayer& c, b->players)
+        for(const pPlayer& c: b->players)
         {
             Player& p = *c;
             if (!p.alive)
@@ -156,7 +155,7 @@ void World::
         //patchDiffPerBlock[ *b ] = blockDiff;
     }
 
-    BOOST_FOREACH(const pPlayer& p, toreassign)
+    for(const pPlayer& p: toreassign)
     {
         Block::Location location(p->pos);
 
@@ -167,7 +166,7 @@ void World::
 
 
     // Perform collision detection
-    BOOST_FOREACH(Players::value_type& v, players)
+    for(Players::value_type& v: players)
     {
         Player& p = *v.second;
         if (!p.alive || !p.currentPatch)
@@ -178,7 +177,7 @@ void World::
             p.alive = false;
             sender->sendPlayerData(p.id(), "{\"serverMessage\":\"Press space to restart\",\"deathByWall\":true}");
 
-            BOOST_FOREACH(Players::value_type& v2, players)
+            for(Players::value_type& v2: players)
             {
                 Player& p2 = *v2.second;
                 if (!p2.alive)
@@ -195,7 +194,7 @@ void World::
     std::set<Player*> wolfsToKill;
 
     // Check for lone wolfs
-    BOOST_FOREACH(Players::value_type& v, players)
+    for(Players::value_type& v: players)
     {
         Player& p = *v.second;
         if (!p.alive)
@@ -223,7 +222,7 @@ void World::
         }
     }
 
-    BOOST_FOREACH(Player* p, wolfsToKill)
+    for(Player* p: wolfsToKill)
     {
         p->alive = false;
         p->score--;
@@ -234,7 +233,7 @@ void World::
     QTextStream playerPosDataStream(&playerPosData);
 
     bool firstPlayer = true;
-    BOOST_FOREACH(Players::value_type& p, players)
+    for(Players::value_type& p: players)
     {
         const QString& playData = p.second->serializeIncremental();
 
@@ -291,7 +290,7 @@ void World::lostPlayer(PlayerId id)
     }
 
     players.erase(id);
-    BOOST_FOREACH(Players::value_type& pv, players)
+    for(Players::value_type& pv: players)
     {
         if (pv.first != id)
             sender->sendPlayerData(pv.first, QString("{\"playerDisconnected\":%1}").arg(id));
@@ -309,11 +308,11 @@ void World::newPlayer(PlayerId id,QString name)
     worldMap[location]->players.insert(p);
 
     QString response;
-    BOOST_FOREACH(const WorldMap::value_type& wv, worldMap)
+    for(const WorldMap::value_type& wv: worldMap)
     {
         const Block& b = *wv.second;
 
-        BOOST_FOREACH(const Patches::value_type& pv, b.patches)
+        for(const Patches::value_type& pv: b.patches)
         {
             const Patch& p = *pv.second;
             if (!response.isEmpty())
@@ -327,7 +326,7 @@ void World::newPlayer(PlayerId id,QString name)
     QTextStream playerPosDataStream(&playerPosData);
 
     bool firstPlayer = true;
-    BOOST_FOREACH(Players::value_type& p, players)
+    for(Players::value_type& p: players)
     {
         if (!firstPlayer)
             playerPosDataStream << ",";
@@ -356,7 +355,7 @@ bool World::hasCollisions(const Player& p)
         if (itr == worldMap.end())
             continue;
 
-        BOOST_FOREACH(const Patches::value_type& pv, itr->second->patches)
+        for(const Patches::value_type& pv: itr->second->patches)
         {
             if (p.currentPatch == pv.second.get())
                 continue;

@@ -2,6 +2,7 @@
 #define PLAYER_H
 
 #include "position.h"
+#include <memory>
 
 #define PLAYER_CANVAS_WIDTH 800*100
 #define PLAYER_CANVAS_HEIGHT 600*100
@@ -47,6 +48,6 @@ private:
     bool wasDragged_;
 };
 
-typedef boost::shared_ptr<Player> pPlayer;
+typedef std::shared_ptr<Player> pPlayer;
 
 #endif // PLAYER_H

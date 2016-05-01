@@ -5,10 +5,10 @@
 #include "SendPlayerData.h"
 
 // boost
-#include <boost/unordered_map.hpp>
+#include <unordered_map>
 
-typedef boost::unordered_map<Block::Location, pBlock> WorldMap;
-typedef boost::unordered_map<PlayerId, pPlayer> Players;
+typedef std::unordered_map<Block::Location, pBlock> WorldMap;
+typedef std::unordered_map<PlayerId, pPlayer> Players;
 
 /**
   Describes all blocks in the world. Bluntly assuming this won't eat up all available ram.

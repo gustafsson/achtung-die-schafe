@@ -3,8 +3,8 @@
 
 #include <vector>
 #include <QString>
-#include <boost/shared_ptr.hpp>
-#include <boost/unordered_map.hpp>
+#include <memory>
+#include <unordered_map>
 
 class Position
 {
@@ -72,8 +72,8 @@ public:
     QString patchSerialize() const;
 };
 
-typedef boost::shared_ptr<Patch> pPatch;
+typedef std::shared_ptr<Patch> pPatch;
 typedef unsigned long long PatchId;
-typedef boost::unordered_map<PatchId, pPatch> Patches;
+typedef std::unordered_map<PatchId, pPatch> Patches;
 
 #endif // POSITION_H

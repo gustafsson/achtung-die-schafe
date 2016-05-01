@@ -59,8 +59,18 @@ public:
 private:
     Location location_;
 };
-typedef boost::shared_ptr<Block> pBlock;
+typedef std::shared_ptr<Block> pBlock;
 
+namespace std{
+    template<>
+    class hash<Block::Location>{
+    public:
+        inline size_t operator()(const Block::Location& l) const
+        {
+            return l.hash();
+        }
+    };
+}
 
 inline size_t hash_value(const Block::Location& l)
 {

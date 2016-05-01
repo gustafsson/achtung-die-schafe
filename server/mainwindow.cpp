@@ -8,7 +8,6 @@
 #include <QTextDocument>
 #include <QFile>
 
-#include <boost/foreach.hpp>
 
 MainWindow::MainWindow(QWidget *parent) :
     QMainWindow(parent),
@@ -85,7 +84,7 @@ void MainWindow::updateGui()
     wallclock.restart();
 
     std::vector<pPlayer> players;
-    BOOST_FOREACH(Players::value_type v, world.players)
+    for(Players::value_type v: world.players)
         players.push_back(v.second);
 
     qSort(players.begin(), players.end(), highScore);
@@ -93,7 +92,7 @@ void MainWindow::updateGui()
     qint64 now = QDateTime::currentDateTime().toMSecsSinceEpoch();
 
     QStringList str;
-    BOOST_FOREACH(pPlayer v, players)
+    for(pPlayer v: players)
     {
         Player& p = *v;
 
@@ -121,7 +120,7 @@ void MainWindow::updateGui()
             } else {
                 if (n < 60) {
                     QString msg = QString("%1 - Server restart in %2 s").arg(ui->lineEdit->text()).arg (n);
-                    incoming->broadcast(QString("{\"serverAlert\":\"%1\"}").arg(Qt::escape(msg)));
+                    incoming->broadcast(QString("{\"serverAlert\":\"%1\"}").arg(msg.toHtmlEscaped()));
                     ui->listWidget->addItem(QString("Server: %1").arg(msg));
                 }
                 n--;
@@ -135,7 +134,7 @@ void MainWindow::updateGui()
 void MainWindow::alertPlayers()
 {
     QString msg = ui->lineEdit->text();
-    incoming->broadcast(QString("{\"serverAlert\":\"%1\"}").arg(Qt::escape(msg)));
+    incoming->broadcast(QString("{\"serverAlert\":\"%1\"}").arg(msg.toHtmlEscaped()));
     ui->listWidget->addItem(QString("Server: %1").arg(msg));
 }
 

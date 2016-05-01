@@ -106,7 +106,7 @@ void Incoming::handshake(QString data){
 
     QWsSocket * socket = qobject_cast<QWsSocket*>( sender() );
     
-    join(socket, Qt::escape(name));
+    join(socket, name.toHtmlEscaped());
 }
 
 

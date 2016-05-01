@@ -5,9 +5,9 @@
 #-------------------------------------------------
 
 QT       += core gui network
+QT       += widgets
 
 TARGET = server
-    win32:TEMPLATE = vcapp
     win32:CONFIG -= embed_manifest_dll
     win32:CONFIG += embed_manifest_exe
 
