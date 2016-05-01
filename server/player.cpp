@@ -85,7 +85,7 @@ void Player::userData(QString data, World*world)
         turningRight = false;
         newTargetVisibleTime();
 
-        world->sender->sendPlayerData(id_, "{\"serverMessage\":\"Steer with left and right arrows\"}");
+        serverMessage(world->sender, "{\"serverMessage\":\"Steer with left and right arrows\"}");
     }
 
     if (data.length() > 1 && data[0]=='m')
@@ -99,6 +99,16 @@ void Player::userData(QString data, World*world)
             pos.y -= clientY * 100.f + 0.5f;
             wasDragged_ = true;
         }
+    }
+}
+
+
+void Player::serverMessage(ISendPlayerData* sender, QString message)
+{
+    if (message != prevServerMessage_)
+    {
+        prevServerMessage_ = message;
+        sender->sendPlayerData(id_, message);
     }
 }
 

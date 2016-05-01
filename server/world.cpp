@@ -175,7 +175,7 @@ void World::
         if (hasCollisions(p))
         {
             p.alive = false;
-            sender->sendPlayerData(p.id(), "{\"serverMessage\":\"Press space to restart\",\"deathByWall\":true}");
+            p.serverMessage(sender, "{\"serverMessage\":\"Press space to restart\",\"deathByWall\":true}");
 
             for(Players::value_type& v2: players)
             {
@@ -214,11 +214,11 @@ void World::
         }
         else if (d>WARNING_DISTANCE*WARNING_DISTANCE)
         {
-            sender->sendPlayerData(p.id(), "{\"serverMessage\":\"Fight or you'll fight the sheep!\"}");
+            p.serverMessage(sender, "{\"serverMessage\":\"Fight or you'll fight the sheep!\"}");
         }
         else
         {
-            sender->sendPlayerData(p.id(), "{\"serverMessage\":\"Steer with left and right arrows\"}");
+            p.serverMessage(sender, "{\"serverMessage\":\"Steer with left and right arrows\"}");
         }
     }
 
@@ -226,7 +226,7 @@ void World::
     {
         p->alive = false;
         p->score--;
-        sender->sendPlayerData(p->id(), "{\"serverMessage\":\"Press space to restart\",\"deathBySheep\":true}");
+        p->serverMessage(sender, "{\"serverMessage\":\"Press space to restart\",\"deathBySheep\":true}");
     }
 
     QString playerPosData;

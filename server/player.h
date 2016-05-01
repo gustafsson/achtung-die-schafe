@@ -10,6 +10,7 @@
 
 typedef long long PlayerId;
 class World;
+class ISendPlayerData;
 
 class Player
 {
@@ -39,6 +40,7 @@ public:
 
     QString serializeIncremental();
     QString serialize();
+    void serverMessage(ISendPlayerData*, QString message);
 private:
     PlayerId id_;
     QString name_;
@@ -46,6 +48,7 @@ private:
     int oldScore_;
     bool hadPatch_;
     bool wasDragged_;
+    QString prevServerMessage_;
 };
 
 typedef std::shared_ptr<Player> pPlayer;
