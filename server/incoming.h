@@ -17,7 +17,7 @@ public:
     ~Incoming();
 
     virtual void sendPlayerData(PlayerId, QString);
-    virtual void broadcast(QString);
+    virtual void broadcast(QString, bool flush=false);
 
 signals:
     void newPlayer(PlayerId, QString);

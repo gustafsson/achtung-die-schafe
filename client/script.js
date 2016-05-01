@@ -169,12 +169,12 @@ Game.prototype.start = function() {
     };
     this.scene.canvas.onmouseout = this.scene.canvas.onmouseup;
 
-    this.ServerConnection();
+    this.establishConnection();
 
 };
 
 
-Game.prototype.ServerConnection = function() {
+Game.prototype.establishConnection = function() {
   if ("WebSocket" in window)
   {
     if (this.server !== undefined)
@@ -355,7 +355,7 @@ Game.prototype.ServerConnection = function() {
      };
      this.server.onclose = function()
      {
-        game.serverMessage.innerHTML = "Connection to server lost. Reload the page to try again";
+        game.serverMessage.innerHTML = "Connection to server lost. Reload the page to reconnect";
          // Stop drawing with a high framerate
         scene.keep_drawing = false;
         window.console.log("Connection is closed...");

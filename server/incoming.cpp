@@ -43,6 +43,7 @@ void Incoming::sendPlayerData(PlayerId id, QString data)
 #ifdef _DEBUG
     Logger::logMessage(QString("Server to player %2: %1").arg(data).arg(id));
 #endif
+
     clients[ id ]->sendTextMessage( data );
 
     // If the client is too far behind and is blocking resources, drop it
@@ -51,14 +52,19 @@ void Incoming::sendPlayerData(PlayerId id, QString data)
 }
 
 
-void Incoming::broadcast(QString data)
+void Incoming::broadcast(QString data, bool flush)
 {
+#ifdef _DEBUG
     Logger::logMessage(QString("Server to all players: %1").arg(data));
+#endif
 
     QMapIterator<PlayerId,QWebSocket*> i(clients);
     while (i.hasNext()) {
         i.next();
         i.value()->sendTextMessage( data );
+
+        if (flush)
+            i.value ()->flush ();
     }
 }
 
@@ -137,7 +143,9 @@ void Incoming::onDataReceived(QString data)
         return;
 
     PlayerId id = clients_reverse[ socket ];
+#ifdef _DEBUG
     Logger::logMessage( QString("Player %2: %1").arg( data ).arg(id));
+#endif
     emit gotPlayerData(id, data);
 }
 

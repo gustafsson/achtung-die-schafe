@@ -143,6 +143,9 @@ void MainWindow::alertPlayers()
 void MainWindow::restartServer()
 {
     if (incoming) {
+        QString msg = "Game over";
+        incoming->broadcast(QString("{\"serverAlert\":\"%1\"}").arg(msg.toHtmlEscaped()), true);
+
         delete incoming;
         incoming = 0;
 
