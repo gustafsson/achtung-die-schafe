@@ -6,9 +6,11 @@
 
 QT       += core gui network widgets websockets
 
+CONFIG   += c++11
+win32:CONFIG -= embed_manifest_dll
+win32:CONFIG += embed_manifest_exe
+
 TARGET = server
-    win32:CONFIG -= embed_manifest_dll
-    win32:CONFIG += embed_manifest_exe
 
 SOURCES += main.cpp\
         mainwindow.cpp \
