@@ -35,5 +35,6 @@ HEADERS  += mainwindow.h \
 
 INCLUDEPATH += C:\Users\fatcomp\Reep\sonicawe\winlib
 
+OTHER_FILES += ../client/*
 
 FORMS    += mainwindow.ui
