@@ -17,8 +17,6 @@ SOURCES += main.cpp\
     player.cpp \
     incoming.cpp \
     logger.cpp \
-    ext/qtwebsocket/QtWebSocket/QWsSocket.cpp \
-    ext/qtwebsocket/QtWebSocket/QWsServer.cpp \
     position.cpp
 
 HEADERS  += mainwindow.h \
@@ -27,8 +25,6 @@ HEADERS  += mainwindow.h \
     player.h \
     incoming.h \
     logger.h \
-    ext/qtwebsocket/QtWebSocket/QWsSocket.h \
-    ext/qtwebsocket/QtWebSocket/QWsServer.h \
     position.h \
     SendPlayerData.h
 
