@@ -16,8 +16,10 @@ void Logger::logMessage(const QString& text)
 
     if (log->isOpen())
     {
+        //auto format = Qt::ISODate;
+        auto format = "yyyy-MM-ddTHH:mm:ss.zzz";
         QTextStream(log.get())
-                << QDateTime::currentDateTime().toString(Qt::ISODate) << " "
+                << QDateTime::currentDateTime().toString(format) << " "
                 << text << "\n";
     }
 }
