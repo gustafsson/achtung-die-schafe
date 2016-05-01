@@ -32,8 +32,8 @@ HEADERS  += mainwindow.h \
     position.h \
     SendPlayerData.h
 
-INCLUDEPATH += C:\Users\fatcomp\Reep\sonicawe\winlib
+QMAKE_INFO_PLIST = Info.plist
 
-OTHER_FILES += ../client/*
+OTHER_FILES += ../client/* Info.plist
 
 FORMS    += mainwindow.ui
