@@ -4,8 +4,7 @@
 #
 #-------------------------------------------------
 
-QT       += core gui network
-QT       += widgets
+QT       += core gui network widgets websockets
 
 TARGET = server
     win32:CONFIG -= embed_manifest_dll

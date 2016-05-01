@@ -10,15 +10,14 @@
 
 /**
   Reference:
- http://gitorious.org/qtwebsocket
- http://doc.trolltech.com/solutions/4/qtservice/qtservice-example-server.html
+  http://doc.qt.io/qt-5/qwebsocket.html
   */
 
 
 Incoming::Incoming(quint16 port, QObject* parent)
     :   QObject(parent)
 {
-    server = new QWsServer(this);
+    server = new QWebSocketServer("AchtungServer", QWebSocketServer::NonSecureMode, this);
     if ( ! server->listen(QHostAddress::Any, port) )
     {
         Logger::logMessage( "Error: Can't launch server" );
@@ -42,11 +41,11 @@ Incoming::~Incoming()
 void Incoming::sendPlayerData(PlayerId id, QString data)
 {
     Logger::logMessage(QString("Server to player %2: %1").arg(data).arg(id));
-    clients[ id ]->write( data );
+    clients[ id ]->sendTextMessage( data );
 
     // If the client is too far behind and is blocking resources, drop it
-    if (clients[ id ]->bytesToWrite() > 1000000)
-        clients[ id ]->abort();
+    //if (clients[ id ]->bytesToWrite() > 1000000)
+    //    clients[ id ]->abort();
 }
 
 
@@ -54,10 +53,10 @@ void Incoming::broadcast(QString data)
 {
     Logger::logMessage(QString("Server to all players: %1").arg(data));
 
-    QMapIterator<PlayerId,QWsSocket*> i(clients);
+    QMapIterator<PlayerId,QWebSocket*> i(clients);
     while (i.hasNext()) {
         i.next();
-        i.value()->write( data );
+        i.value()->sendTextMessage( data );
     }
 }
 
@@ -65,7 +64,7 @@ void Incoming::broadcast(QString data)
 void Incoming::onClientConnection()
 {
     // TODO protect against DOS by rejecting players if the framerate drops or if the bandwidth is too low.
-    QWsSocket * clientSocket = server->nextPendingConnection();
+    QWebSocket * clientSocket = server->nextPendingConnection();
 
     // Create a new Player
     static PlayerId global_id = 0;
@@ -78,9 +77,9 @@ void Incoming::onClientConnection()
 
     QObject * clientObject = qobject_cast<QObject*>(clientSocket);
 
-    connect(clientObject, SIGNAL(frameReceived(QString)), this, SLOT(handshake(QString)));
+    connect(clientObject, SIGNAL(textMessageReceived(QString)), this, SLOT(handshake(QString)));
     connect(clientObject, SIGNAL(disconnected()), this, SLOT(onClientDisconnection()));
-    connect(clientObject, SIGNAL(pong(quint64)), this, SLOT(onPong(quint64)));
+    connect(clientObject, SIGNAL(pong(quint64,const QByteArray&)), this, SLOT(onPong(quint64,const QByteArray&)));
 }
 
 
@@ -104,18 +103,18 @@ void Incoming::handshake(QString data){
 
     //TODO in all cases, check if name already exists. If so, login procedure should fail, forcing the player to choose another name
 
-    QWsSocket * socket = qobject_cast<QWsSocket*>( sender() );
+    QWebSocket * socket = qobject_cast<QWebSocket*>( sender() );
     
     join(socket, name.toHtmlEscaped());
 }
 
 
-void Incoming::join(QWsSocket * clientSocket, QString name)
+void Incoming::join(QWebSocket * clientSocket, QString name)
 {
     QObject * clientObject = qobject_cast<QObject*>(clientSocket);
 
-    disconnect(clientObject, SIGNAL(frameReceived(QString)), 0, 0);
-    connect(clientObject, SIGNAL(frameReceived(QString)), this, SLOT(onDataReceived(QString)));
+    disconnect(clientObject, SIGNAL(textMessageReceived(QString)), 0, 0);
+    connect(clientObject, SIGNAL(textMessageReceived(QString)), this, SLOT(onDataReceived(QString)));
 
     Logger::logMessage(QString("Handshake with %1").arg(clientSocket->peerAddress().toString()));
     
@@ -125,9 +124,10 @@ void Incoming::join(QWsSocket * clientSocket, QString name)
     emit newPlayer( global_id, name );
 }
 
+
 void Incoming::onDataReceived(QString data)
 {
-    QWsSocket * socket = qobject_cast<QWsSocket*>( sender() );
+    QWebSocket * socket = qobject_cast<QWebSocket*>( sender() );
     if (socket == 0)
         return;
 
@@ -140,7 +140,7 @@ void Incoming::onDataReceived(QString data)
 }
 
 
-void Incoming::onPong(quint64 elapsedTime)
+void Incoming::onPong(quint64 elapsedTime,const QByteArray& payload)
 {
     Logger::logMessage( "ping: " + QString::number(elapsedTime) + " ms" );
 }
@@ -148,7 +148,7 @@ void Incoming::onPong(quint64 elapsedTime)
 
 void Incoming::onClientDisconnection()
 {
-    QWsSocket * socket = qobject_cast<QWsSocket*>(sender());
+    QWebSocket * socket = qobject_cast<QWebSocket*>(sender());
     if (socket == 0)
         return;
 

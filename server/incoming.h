@@ -1,8 +1,8 @@
 #ifndef INCOMING_H
 #define INCOMING_H
 
-#include "ext/qtwebsocket/QtWebSocket/QWsServer.h"
-#include "ext/qtwebsocket/QtWebSocket/QWsSocket.h"
+#include <QWebSocket>
+#include <QWebSocketServer>
 #include <QMap>
 #include "player.h"
 #include "SendPlayerData.h"
@@ -25,15 +25,15 @@ signals:
     void gotPlayerData(PlayerId, QString);
 
 private:
-    QWsServer* server;
-    QMap<PlayerId,QWsSocket*> clients;
-    QMap<QWsSocket*,PlayerId> clients_reverse;
-    void join(QWsSocket * clientObject, QString name);
+    QWebSocketServer* server;
+    QMap<PlayerId,QWebSocket*> clients;
+    QMap<QWebSocket*,PlayerId> clients_reverse;
+    void join(QWebSocket * clientObject, QString name);
 
 private slots:
     void onClientConnection();
     void onDataReceived(QString data);
-    void onPong(quint64 elapsedTime);
+    void onPong(quint64 elapsedTime,const QByteArray& payload);
     void onClientDisconnection();
     void handshake(QString data);
 };
