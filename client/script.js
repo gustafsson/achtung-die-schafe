@@ -6,18 +6,24 @@
 
 var game;
 
-function init(){	
+function init(){
 	var scene = new Scene(document.getElementById("myCanvas"));
 	game = new Game(scene);
-	
-	sheepNr=Math.floor((Math.random()*1000000)+1); 
+
+	sheepNr=Math.floor((Math.random()*1000000)+1);
 	document.getElementById("nameInput").value="Sheep"+sheepNr;
 }
 
+function isMobile() {
+    var index = navigator.appVersion.indexOf("Mobile");
+    return (index > -1);
+}
 
 function startGame(){
     game.start();
-
+    if (isMobile()){
+        fullScreen();
+    }
     document.getElementById("playbutton").style.display = "none";
     document.getElementById("form").style.display = "none";
 }
@@ -31,6 +37,11 @@ function Game(scene) {
     this.scene = scene;
 
 	this.loadImage(scene.context,"welcome.png",[-400, -300]);
+}
+
+function fullScreen(){
+    document.getElementById("myCanvas").webkitRequestFullScreen();
+    document.getElementById("myCanvas").mozRequestFullScreen()
 }
 
 Game.prototype.loadImage = function(ctx,url,offset){
@@ -50,10 +61,9 @@ Game.prototype.loadImage = function(ctx,url,offset){
 Game.prototype.start = function() {
     this.scene.canvas.focus();
     var game = this;
-    
+
     var updatePlayerAction = function() {
         var player = game.scene.player_list[game.scene.clientPlayerId];
-
         if (player===undefined) // Not initiated
             return;
 
@@ -64,6 +74,30 @@ Game.prototype.start = function() {
         else if (game.scene.keys[39])
             player.action = 'r';
     }
+
+    // Listen to touch events and send to server
+    game.scene.canvas.addEventListener('touchstart', function(event) {
+        var player = game.scene.player_list[game.scene.clientPlayerId];
+        if (event.targetTouches.length == 1)
+            var touch = event.targetTouches[0];
+        if (player.alive === true){
+            if (touch.pageX > game.scene.canvas.style.left+game.scene.canvas.width/2)
+                game.server.send('+'+39);
+            else
+                game.server.send('+'+37);
+        }
+        else
+            game.server.send('+'+32);
+        updatePlayerAction();
+    }, false);
+
+    // Listen to touch events and send to server
+    game.scene.canvas.addEventListener('touchend', function(event) {
+        var touch = event.targetTouches[0];
+        game.server.send('-'+39);
+        game.server.send('-'+37);
+        updatePlayerAction();
+    }, false);
 
 	this.scene.canvas.onkeydown = function(evt) {
 	    //evt = evt || window.event;
@@ -88,37 +122,40 @@ Game.prototype.start = function() {
     };
 
     var MouseWheelHandler = function(e) {
-        var e = window.event || e; // old IE support  
+        var e = window.event || e; // old IE support
         var delta = Math.max(-1, Math.min(1, (e.wheelDelta || -e.detail)));
         delta = delta > 0 ? 1 : delta < 0 ? -1 : 0;
         game.scene.scale = game.scene.scale * Math.exp(0.1*delta);
 
         e.preventDefault();
     };
-    
+
     if (this.scene.canvas.addEventListener) {
-        // IE9, Chrome, Safari, Opera  
+        // IE9, Chrome, Safari, Opera
         this.scene.canvas.addEventListener("mousewheel", MouseWheelHandler, false);
-        // Firefox  
+        // Firefox
         this.scene.canvas.addEventListener("DOMMouseScroll", MouseWheelHandler, false);
     }
-    
+
     this.scene.canvas.onmousedown = function(evt) {
         game.scene.clickPos = [evt.clientX, evt.clientY];
 		//window.console.log("onmousedown: " + evt.clientX + "," + evt.clientY);
     };
     this.scene.canvas.onmousemove = function(evt) {
-        if (game.scene.clickPos === undefined)
-            return;
+        var player = game.scene.player_list[game.scene.clientPlayerId];
+        if (player.alive === false){
+            if (game.scene.clickPos === undefined)
+                return;
 
-        var d = [(evt.clientX - game.scene.clickPos[0])/game.scene.scale,
-                 (evt.clientY - game.scene.clickPos[1])/game.scene.scale];
-        game.scene.clickPos = [evt.clientX, evt.clientY];
-        game.scene.camera[0] -= d[0];
-        game.scene.camera[1] -= d[1];
-        var msg = 'm' + d[0] + "," + d[1];
-        game.server.send(msg);
-		//window.console.log("onmousemove: " + msg);
+            var d = [(evt.clientX - game.scene.clickPos[0])/game.scene.scale,
+                     (evt.clientY - game.scene.clickPos[1])/game.scene.scale];
+            game.scene.clickPos = [evt.clientX, evt.clientY];
+            game.scene.camera[0] -= d[0];
+            game.scene.camera[1] -= d[1];
+            var msg = 'm' + d[0] + "," + d[1];
+            game.server.send(msg);
+            //window.console.log("onmousemove: " + msg);
+        }
     };
     this.scene.canvas.onmouseup = function(evt) {
         game.scene.clickPos = undefined;
@@ -130,7 +167,7 @@ Game.prototype.start = function() {
 
 };
 
-	
+
 Game.prototype.ServerConnection = function() {
   if ("WebSocket" in window)
   {
@@ -185,7 +222,7 @@ Game.prototype.ServerConnection = function() {
 
 		if (message.serverMessage !== undefined)
 		    game.serverMessage.innerHTML = message.serverMessage;
-		    
+
 		if (message.serverAlert !== undefined)
 		    scene.text_to_display=message.serverAlert;
 
@@ -208,7 +245,7 @@ Game.prototype.ServerConnection = function() {
 		        if (scene.player_list[msgplayer.id] === undefined) {
                     scene.player_list[msgplayer.id] = new Player(msgplayer.id, msgplayer.color);
                 }
-		        
+
 		        var player = scene.player_list[msgplayer.id];
                 if (msgplayer.pos !== undefined) {
                     if (player.lastPos !== undefined && player.gap === false && player.alive === true) {
@@ -262,7 +299,7 @@ Game.prototype.ServerConnection = function() {
 		            continue;
 
                 var block = scene.getBlockOrCreate(trail.blockX, trail.blockY);
-                
+
                 // addKurv and appendKurv will also render to the blocks off-screen target (but not to the displayed canvas on-screen)
                 var kurv = block.getKurv(trail.id);
                 var plotp;
@@ -272,17 +309,17 @@ Game.prototype.ServerConnection = function() {
 				    plotp = block.addKurv(new Kurv(trail));
 				    plotcolor = trail.color;
 			    }
-                else 
+                else
                 {
                     plotp = block.appendKurv(trail.id, trail.p);
 				    plotcolor = block.getKurv(trail.id).color;
                 }
-                
+
                 scene.blockPainter(trail.blockX, trail.blockY, function(ctx) {
                     drawKurv(ctx, plotp, plotcolor);
                 });
 		    }
-		
+
 		if (message.deathBySheep !== undefined){
 			game.serverMessage.innerHTML = "Told you to stay in the fight... You got trampled by a sheep!<p></p><p></p><p><strong>Press space to restart!</strong></p>";
 			max_death=10;
@@ -293,18 +330,18 @@ Game.prototype.ServerConnection = function() {
 			game.loadImage(scene.context,"deathBySheep.png",[171, 189]);
             sendMessage('Lonely, I\'m so lonely');
 		}
-		
+
 		if (message.deathByWall !== undefined){
 			game.serverMessage.innerHTML = "Straight into the wall... Press space to try again<p></p><p></p><p>Hint: you're an observer... try pressing up and down arrows!";
             sendMessage('Oups!');
-		}		
-		
+		}
+
         if (scene.clientPlayerId !== undefined && scene.player_list[scene.clientPlayerId] !== undefined)
         {
             if (scene.queuedDrawing===undefined)
                 scene.continiousDraw();
         }
-   
+
 		server.send(''); // Not always necessary, but works better on some browsers
 	 };
 	 this.server.onclose = function()
@@ -315,7 +352,7 @@ Game.prototype.ServerConnection = function() {
     	    // Stop drawing with a high framerate
     	    window.clearTimeout(game.scene.queuedDrawing);
 	    }
-		window.console.log("Connection is closed..."); 
+		window.console.log("Connection is closed...");
 	 };
 	 this.server.onopen = function()
 	 {
@@ -351,7 +388,7 @@ function Block(blockX,blockY,size) {
 	this.preRenderedContext.translate(-blockX*size,-blockY*size);
 	this.preRenderedContext.lineWidth=10;
 	this.preRenderedContext.lineCap="round";
-    
+
     this.kurv_list = [];
 }
 
@@ -363,9 +400,9 @@ Block.prototype.getKurv = function(id) {
 
 Block.prototype.addKurv = function(kurv) {
     this.kurv_list[kurv.id] = kurv;
-    
+
     // drawKurv(this.preRenderedContext, kurv.p, kurv.color);
-    
+
     return kurv.p;
 };
 
@@ -385,11 +422,11 @@ function drawKurv(ctx,p,color)
 {
 	ctx.beginPath();
 	ctx.strokeStyle = color;
-		
+
 	ctx.moveTo(p[0][0],p[0][1]);
 	for (var j=1; j<p.length; j++)
 		ctx.lineTo(p[j][0],p[j][1]);
-	
+
 	ctx.stroke();
 }
 
@@ -449,10 +486,10 @@ Scene.prototype.simulate = function(dt) {
 }
 
 Scene.prototype.draw = function() {
-	
+
 	// Reset the transformation matrix
 	this.context.setTransform(1, 0, 0, 1, 0, 0);
-	
+
 	// Clean everything
 	this.context.clearRect(0, 0, this.context.canvas.width, this.context.canvas.height);
 
@@ -460,7 +497,7 @@ Scene.prototype.draw = function() {
 	this.context.translate(this.context.canvas.width/2, this.context.canvas.height/2);
 	this.context.scale(this.scale, this.scale);
 	this.context.translate(-this.camera[0], -this.camera[1]);
-	
+
 	// Draw all prerendered image blocks
 	for (var x=Math.floor((this.camera[0] - this.context.canvas.width/(2*this.scale))/this.blockSize);
 	         x<=Math.ceil((this.camera[0] + this.context.canvas.width/(2*this.scale))/this.blockSize); x++)
@@ -549,7 +586,7 @@ Player.prototype.render = function(ctx) {
 	    ctx.strokeStyle = this.color;
         ctx.arc(this.pos[0], this.pos[1], 5, 0 , 2 * Math.PI, false);
 	    ctx.fill();
-	
+
 	    //if (!this.isSelf)
         //	ctx.strokeText(this.id, this.pos[0], this.pos[1] );
     }

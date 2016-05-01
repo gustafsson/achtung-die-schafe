@@ -10,7 +10,7 @@
 		background-color:#222222;
 		background-repeat:repeat;
 		background-attachment:fixed;
-		background-position:center; 
+		background-position:center;
 		}
 		#content {
 			width: 800px;
@@ -30,6 +30,29 @@
 			background-color: #ffffff;
 			opacity: 1;
 		}
+
+		/* this works */
+		#myCanvas:-webkit-full-screen	{
+			height: 100%;
+			width: auto;
+		}
+		#myCanvas:-moz-full-screen		{
+			height: 100%;
+			width: auto;
+		}
+		#myCanvas:-ms-full-screen		{
+			height: 100%;
+			width: auto;
+		}
+		#myCanvas:-o-full-screen		{
+			height: 100%;
+			width: auto;
+		}
+		#myCanvas:full-screen			{
+			height: 100%;
+			width: auto;
+		}
+
 		#serverMessage {
 		    padding: 4px;
 		    margin-right: 20px;
@@ -92,13 +115,13 @@
 			</td>
 		</tr>
 		<tr>
-			<td></td>
+		<td></td>
 			<td>
 				<div style="display:inline;">
 		<form id="form" action="javascript:;">
 			<button type="button" onclick="startGame()" id="playbutton">Play!</button>
 		  Name: <input id="nameInput" type="text" name="pname" />
-		</form> 
+		</form>
 		<div id="serverMessage" style="display:inline;"></div>
 	</div>
 	<div id="scoreboard" style="display:inline;"></div>
@@ -106,6 +129,7 @@
 	<div id="sheep_death_toll" style="display:inline;"></div>
 			</td>
 			<td></td>
+
 </tr>
 	</table>
 	<script type="text/javascript" src="script.js?7"></script>
