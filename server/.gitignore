@@ -5,3 +5,8 @@ moc_*.cpp
 server
 *.pro.user
 ui_mainwindow.h
+Debug/
+Release/
+server.build/
+server.xcodeproj/
+Info.plist
