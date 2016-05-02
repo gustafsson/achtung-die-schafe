@@ -6,6 +6,9 @@
 
 var game;
 
+
+    location.hash = "#openModal";
+
 function init(){
     var scene = new Scene(document.getElementById("myCanvas"));
     game = new Game(scene);
