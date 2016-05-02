@@ -19,6 +19,13 @@ function isMobile() {
     return (index > -1);
 }
 
+
+document.getElementById('playbutton').onclick = function() {
+    var dialog = document.getElementById("openModal");
+    dialog.style.display = "none";
+    startGame();
+};
+
 function startGame(){
     game.start();
     if (isMobile()){
