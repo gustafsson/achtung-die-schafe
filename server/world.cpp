@@ -336,7 +336,10 @@ void World::newPlayer(PlayerId id,QString name)
     }
     playerPosDataStream.flush();
 
-    Logger::logMessage(QString("New player: %1. Serialised world: %2+%3 bytes").arg(id).arg(playerPosData.length()).arg(response.length()));
+    Logger::logMessage(QString("New player: %1. Serialised world: %2+%3 bytes")
+        .arg(id)
+        .arg(playerPosData.length())
+        .arg(response.length()));
     sender->sendPlayerData(id, QString("{\"players\": [%1], \"newTrails\": [%2]}")
         .arg(playerPosData)
         .arg(response));

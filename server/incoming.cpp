@@ -40,7 +40,7 @@ Incoming::~Incoming()
 
 void Incoming::sendPlayerData(PlayerId id, QString data)
 {
-#ifdef _DEBUG
+#ifdef QT_DEBUG
     Logger::logMessage(QString("Server to player %2: %1").arg(data).arg(id));
 #endif
 
@@ -54,7 +54,7 @@ void Incoming::sendPlayerData(PlayerId id, QString data)
 
 void Incoming::broadcast(QString data, bool flush)
 {
-#ifdef _DEBUG
+#ifdef QT_DEBUG
     Logger::logMessage(QString("Server to all players: %1").arg(data));
 #endif
 
@@ -143,7 +143,7 @@ void Incoming::onDataReceived(QString data)
         return;
 
     PlayerId id = clients_reverse[ socket ];
-#ifdef _DEBUG
+#ifdef QT_DEBUG
     Logger::logMessage( QString("Player %2: %1").arg( data ).arg(id));
 #endif
     emit gotPlayerData(id, data);

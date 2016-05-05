@@ -161,11 +161,11 @@ void MainWindow::restartServer()
     }
 
     //quint16 port = 39907;
-    #ifdef _DEBUG
-        quint16 port = 10002;
-    #else
+    //#ifdef QT_DEBUG
+    //    quint16 port = 10002;
+    //#else
         quint16 port = 10001;
-    #endif
+    //#endif
 
     incoming = new Incoming(port, this);
     world = World();
