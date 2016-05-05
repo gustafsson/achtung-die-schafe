@@ -13,6 +13,7 @@ public:
     // With 2 decimals below pixel resolution
 
     Position() : x(0), y(0) {}
+    Position(T x, T y) : x(x), y(y) {}
 
     T x, y;
 };

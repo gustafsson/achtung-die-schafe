@@ -28,12 +28,20 @@ void Patch::
 QString Patch::
         patchSerialize() const
 {
+    // pack trail, by storing diffs
     QString position;
+    Position prevData(0,0);
     for (unsigned i=0; i<pos.size(); ++i)
     {
-        if (0!=i)
+        if (0<i)
             position += ",";
-        position += QString("[%1,%2]").arg(pos[i].x*0.01f).arg(pos[i].y*0.01f);
+
+        Position data( (long long)std::round(pos[i].x*0.01f)
+                     , (long long)std::round(pos[i].y*0.01f));
+        position += QString("[%1,%2]")
+                .arg(data.x-prevData.x)
+                .arg(data.y-prevData.y);
+        prevData = data;
     }
 
     Block::Location loc(pos.front());

@@ -316,6 +316,14 @@ Game.prototype.establishConnection = function() {
 
                 var block = scene.getBlockOrCreate(trail.blockX, trail.blockY);
 
+                // unpack trail from diffs
+                var x = 0, y = 0;
+                for (var j=0; j<trail.p.length; j++)
+                {
+                    x = (trail.p[j][0] += x);
+                    y = (trail.p[j][1] += y);
+                }
+
                 // addKurv and appendKurv will also render to the blocks off-screen target (but not to the displayed canvas on-screen)
                 var kurv = block.getKurv(trail.id);
                 var plotp;
