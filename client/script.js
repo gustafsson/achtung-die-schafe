@@ -525,10 +525,15 @@ Scene.prototype.draw = function() {
     this.context.translate(-this.camera[0], -this.camera[1]);
 
     // Draw all prerendered image blocks
-    for (var x=Math.floor((this.camera[0] - this.context.canvas.width/(2*this.scale))/this.blockSize);
-             x<=Math.ceil((this.camera[0] + this.context.canvas.width/(2*this.scale))/this.blockSize); x++)
-    for (var y=Math.floor((this.camera[1] - this.context.canvas.height/(2*this.scale))/this.blockSize);
-             y<=Math.ceil((this.camera[1] + this.context.canvas.height/(2*this.scale))/this.blockSize); y++)
+    var minx = this.camera[0] - this.context.canvas.width/(2*this.scale),
+        maxx = this.camera[0] + this.context.canvas.width/(2*this.scale),
+        miny = this.camera[1] - this.context.canvas.height/(2*this.scale),
+        maxy = this.camera[1] + this.context.canvas.height/(2*this.scale);
+
+    for (var x=Math.floor(minx/this.blockSize);
+             x<=Math.ceil(maxx/this.blockSize); x++)
+    for (var y=Math.floor(miny/this.blockSize);
+             y<=Math.ceil(maxy/this.blockSize); y++)
     {
         var block = this.getBlock(x,y);
         if (block === undefined)
@@ -540,7 +545,7 @@ Scene.prototype.draw = function() {
     // Draw all players
     var context = this.context;
     $.each(this.player_list, function(n, player) {
-        player.render(context);
+        player.render(context, minx, maxx, miny, maxy);
     });
 
     if (this.text_to_display !== ""){
@@ -605,12 +610,34 @@ function Player(id,color) {
 };
 
 
-Player.prototype.render = function(ctx) {
+Player.prototype.render = function(ctx, minx, maxx, miny, maxy) {
     if (this.alive)
     {
+        var d = 0, x = this.pos[0], y = this.pos[1];
+        if (x < minx) {
+            d += minx - x;
+            x = minx;
+        } else if (x > maxx) {
+            d += x - maxx;
+            x = maxx;
+        }
+        if (y < miny) {
+            d += miny - y;
+            y = miny;
+        } else if (y > maxy) {
+            d += y - maxy;
+            y = maxy;
+        }
+
+        if (d > 0) {
+            console.log(d);
+        }
+
+        var r = 1+4/(1 + 0.01*d);
+
         ctx.beginPath();
         ctx.strokeStyle = this.color;
-        ctx.arc(this.pos[0], this.pos[1], 5, 0 , 2 * Math.PI, false);
+        ctx.arc(x, y, r, 0 , 2 * Math.PI, false);
         ctx.fill();
 
         //if (!this.isSelf)
