@@ -206,7 +206,7 @@ Game.prototype.establishConnection = function() {
     var port = getParameterByName('port');
 
     if (host === undefined)
-        host = '82.115.196.222';
+        host = '195.42.110.253';
 
     if (port === undefined)
         port = '10001';
