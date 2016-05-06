@@ -5,7 +5,7 @@ class ISendPlayerData
 {
 public:
     virtual void sendPlayerData(PlayerId, QString) = 0;
-    virtual void broadcast(QString, bool flush=false) = 0;
+    virtual void broadcast(QString, bool flush=true) = 0;
 };
 
 #endif // SENDPLAYERDATA_H

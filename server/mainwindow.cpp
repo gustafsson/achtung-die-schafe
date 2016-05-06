@@ -121,7 +121,7 @@ void MainWindow::updateGui()
             } else {
                 if (n < 60) {
                     QString msg = QString("%1 - Server restart in %2 s").arg(ui->lineEdit->text()).arg (n);
-                    incoming->broadcast(QString("{\"serverAlert\":\"%1\"}").arg(msg.toHtmlEscaped()));
+                    incoming->broadcast(QString("{\"serverAlert\":\"%1\"}").arg(msg.toHtmlEscaped()), false);
                     ui->listWidget->addItem(QString("Server: %1").arg(msg));
                 }
                 n--;
@@ -135,7 +135,7 @@ void MainWindow::updateGui()
 void MainWindow::alertPlayers()
 {
     QString msg = ui->lineEdit->text();
-    incoming->broadcast(QString("{\"serverAlert\":\"%1\"}").arg(msg.toHtmlEscaped()));
+    incoming->broadcast(QString("{\"serverAlert\":\"%1\"}").arg(msg.toHtmlEscaped()), false);
     ui->listWidget->addItem(QString("Server: %1").arg(msg));
 }
 
