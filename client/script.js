@@ -362,12 +362,12 @@ Game.prototype.establishConnection = function() {
                 game.count_death++;
             }
             game.loadImage(scene.context,"deathBySheep.png",[171, 189]);
-            sendMessage('Lonely, I\'m so lonely');
+            //sendMessage('Lonely, I\'m so lonely');
         }
 
         if (message.deathByWall !== undefined){
             game.serverMessage.innerHTML = "Straight into the wall... Press space to try again<p></p><p></p><p>Hint: you're an observer... try pressing up and down arrows!";
-            sendMessage('Oups!');
+            //sendMessage('Oups!');
         }
 
         if (scene.clientPlayerId !== undefined && scene.player_list[scene.clientPlayerId] !== undefined)
