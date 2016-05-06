@@ -20,7 +20,7 @@ public:
     virtual void broadcast(QString, bool flush=true);
 
 signals:
-    void newPlayer(PlayerId, QString);
+    void newPlayer(PlayerId, QString, QString);
     void lostPlayer(PlayerId);
     void gotPlayerData(PlayerId, QString);
 

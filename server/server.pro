@@ -4,7 +4,9 @@
 #
 #-------------------------------------------------
 
-QT       += core gui network widgets websockets
+QT       += core network websockets gui widgets
+!nogui: CONFIG += gui widgets
+nogui: DEFINES += NOGUI
 
 CONFIG   += c++11
 win32:CONFIG -= embed_manifest_dll
@@ -12,7 +14,7 @@ win32:CONFIG += embed_manifest_exe
 
 TARGET = server
 
-SOURCES += main.cpp\
+SOURCES += main.cpp \
         mainwindow.cpp \
     world.cpp \
     block.cpp \

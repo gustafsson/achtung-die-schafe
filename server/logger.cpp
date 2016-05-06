@@ -4,6 +4,7 @@
 #include <QTextStream>
 #include <QDateTime>
 #include <memory>
+#include <iostream>
 
 void Logger::logMessage(const QString& text)
 {
@@ -22,4 +23,8 @@ void Logger::logMessage(const QString& text)
                 << QDateTime::currentDateTime().toString(format) << " "
                 << text << "\n";
     }
+
+#ifdef NOGUI
+    std::cout << text.toStdString() << std::endl;
+#endif
 }

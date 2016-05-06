@@ -20,8 +20,13 @@ Incoming::Incoming(quint16 port, QObject* parent)
     server = new QWebSocketServer("AchtungServer", QWebSocketServer::NonSecureMode, this);
     if ( ! server->listen(QHostAddress::Any, port) )
     {
-        Logger::logMessage( "Error: Can't launch server" );
-        QMessageBox::critical(0, "QWsServer error", server->errorString());
+        Logger::logMessage( QString("Error: Can't launch server on port %1. %2")
+                                   .arg(port)
+                                   .arg(server->errorString())
+                                   );
+        #ifdef NOGUI
+            QMessageBox::critical(0, "QWsServer error", server->errorString());
+        #endif
     }
     else
     {
@@ -124,12 +129,12 @@ void Incoming::join(QWebSocket * clientSocket, QString name)
     disconnect(clientObject, SIGNAL(textMessageReceived(QString)), 0, 0);
     connect(clientObject, SIGNAL(textMessageReceived(QString)), this, SLOT(onDataReceived(QString)));
 
-    Logger::logMessage(QString("Handshake with %1").arg(clientSocket->peerAddress().toString()));
-    
-    PlayerId global_id = clients_reverse[ clientSocket ];
+    QString endpoint = clientSocket->peerAddress().toString();
+    Logger::logMessage(QString("Handshake with %1").arg(endpoint));
 
+    PlayerId global_id = clients_reverse[ clientSocket ];
     sendPlayerData( global_id, QString("{\"clientPlayerId\":%1}").arg(global_id));
-    emit newPlayer( global_id, name );
+    emit newPlayer( global_id, name, endpoint );
 }
 
 

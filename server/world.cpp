@@ -298,9 +298,9 @@ void World::lostPlayer(PlayerId id)
 }
 
 
-void World::newPlayer(PlayerId id,QString name)
+void World::newPlayer(PlayerId id,QString name,QString endpoint)
 {
-    pPlayer p(new Player(id,name));
+    pPlayer p(new Player(id,name,endpoint));
     players[id] = p;
     Block::Location location(p->pos);
     if (worldMap.find(location) == worldMap.end())

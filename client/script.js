@@ -206,7 +206,7 @@ Game.prototype.establishConnection = function() {
     var port = getParameterByName('port');
 
     if (host === undefined)
-        host = '82.115.199.93';
+        host = 'scene.birdie.org';
 
     if (port === undefined)
         port = '10001';

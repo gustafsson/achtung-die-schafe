@@ -8,16 +8,21 @@
 #include <QTextDocument>
 #include <QFile>
 
+#include <iostream>
 
-MainWindow::MainWindow(QWidget *parent) :
-    QMainWindow(parent),
-    ui(new Ui::MainWindow),
+MainWindow::MainWindow(bool nogui, int default_restart_seconds) :
+    default_restart_seconds(default_restart_seconds),
+    mainwindow(nogui ? 0 : new QMainWindow),
+    ui(nogui ? 0 : new Ui::MainWindow),
     incoming(0)
 {
-    ui->setupUi(this);
+    if (ui)
+    {
+        ui->setupUi(mainwindow);
 
-    connect(ui->lineEdit, SIGNAL(returnPressed()), SLOT(alertPlayers()));
-    connect(ui->pushButton, SIGNAL(clicked()), SLOT(restartServer()));
+        connect(ui->lineEdit, SIGNAL(returnPressed()), SLOT(alertPlayers()));
+        connect(ui->pushButton, SIGNAL(clicked()), SLOT(restartServer()));
+    }
 
     restartServer();
     timestep();
@@ -27,21 +32,37 @@ MainWindow::MainWindow(QWidget *parent) :
 
 MainWindow::~MainWindow()
 {
-    delete ui;
+    if (mainwindow)
+        delete mainwindow;
+    if (ui)
+        delete ui;
 }
 
 
-void MainWindow::newPlayer(PlayerId id, QString name)
+void MainWindow::show()
 {
-    world.newPlayer(id,name);
-    ui->labelNumberOfPlayers->setText(QString("%1").arg(ui->labelNumberOfPlayers->text().toInt()+1));
+    if (mainwindow)
+        mainwindow->show ();
+}
+
+
+void MainWindow::newPlayer(PlayerId id, QString name, QString endpoint)
+{
+    world.newPlayer(id,name,endpoint);
+    if (ui)
+        ui->labelNumberOfPlayers->setText(QString("%1").arg(world.players.size ()));
+    else
+        std::cout << "Number of players: " << world.players.size () << std::endl;
 }
 
 
 void MainWindow::lostPlayer(PlayerId id)
 {
-    ui->labelNumberOfPlayers->setText(QString("%1").arg(ui->labelNumberOfPlayers->text().toInt()-1));
     world.lostPlayer(id);
+    if (ui)
+        ui->labelNumberOfPlayers->setText(QString("%1").arg(world.players.size ()));
+    else
+        std::cout << "Number of players: " << world.players.size () << std::endl;
 }
 
 
@@ -97,35 +118,45 @@ void MainWindow::updateGui()
     {
         Player& p = *v;
 
-        str << QString("%1. %2 (id=%3, %4, %5) %6")
+        str << QString("%1. %2 (id=%3, %4, %5)%6 %7")
             .arg(p.score)
             .arg(p.name())
             .arg(p.id())
             .arg(QTime(0,0).addMSecs(now-p.timestamp).toString())
             .arg(QTime(0,0).addMSecs(p.playtime+=p.alive?dt:0).toString())
-            .arg(p.alive?"":" (observer)");
+            .arg(p.alive?"":" (observer)")
+            .arg(p.endpoint())
+            ;
     }
 
     this->last_score_str = str;
-    ui->listWidget->clear();
-    ui->listWidget->addItems(str);
+    if (ui)
+    {
+        ui->listWidget->clear();
+        ui->listWidget->addItems(str);
+    }
+
     QTimer::singleShot(1000, this, SLOT(updateGui()));
 
-    if (!ui->lineEdit_2->hasFocus ())
+    if (!ui || !ui->lineEdit_2->hasFocus ())
     {
-        bool ok = false;
-        int n = ui->lineEdit_2->text ().toInt (&ok);
+        bool ok = ui ? false : true;
+        int n = ui
+                ? ui->lineEdit_2->text ().toInt (&ok)
+                : default_restart_seconds - lastRestart.secsTo (QDateTime::currentDateTime ());
+
         if (ok) {
             if (n < 0) {
                 restartServer ();
             } else {
                 if (n < 60) {
-                    QString msg = QString("%1 - Server restart in %2 s").arg(ui->lineEdit->text()).arg (n);
+                    QString msg1 = ui ? ui->lineEdit->text() + " - ": "";
+                    QString msg = QString("%1Server restart in %2 s").arg(msg1).arg (n);
                     incoming->broadcast(QString("{\"serverAlert\":\"%1\"}").arg(msg.toHtmlEscaped()), false);
-                    ui->listWidget->addItem(QString("Server: %1").arg(msg));
+                    if (ui) ui->listWidget->addItem(QString("Server: %1").arg(msg));
                 }
                 n--;
-                ui->lineEdit_2->setText (QString("%1").arg (n));
+                if (ui) ui->lineEdit_2->setText (QString("%1").arg (n));
             }
         }
     }
@@ -134,14 +165,19 @@ void MainWindow::updateGui()
 
 void MainWindow::alertPlayers()
 {
-    QString msg = ui->lineEdit->text();
-    incoming->broadcast(QString("{\"serverAlert\":\"%1\"}").arg(msg.toHtmlEscaped()), false);
-    ui->listWidget->addItem(QString("Server: %1").arg(msg));
+    if (ui)
+    {
+        QString msg = ui->lineEdit->text();
+        incoming->broadcast(QString("{\"serverAlert\":\"%1\"}").arg(msg.toHtmlEscaped()), false);
+        ui->listWidget->addItem(QString("Server: %1").arg(msg));
+    }
 }
 
 
 void MainWindow::restartServer()
 {
+    lastRestart = QDateTime::currentDateTime ();
+
     if (incoming) {
         QString msg = "Game over";
         incoming->broadcast(QString("{\"serverAlert\":\"%1\"}").arg(msg.toHtmlEscaped()), true);
@@ -149,6 +185,7 @@ void MainWindow::restartServer()
         delete incoming;
         incoming = 0;
 
+        Logger::logMessage ("Updating logfile.txt with scores");
         QFile logfile("logfile.txt");
         logfile.open (QIODevice::Append);
         QTextStream out(&logfile);
@@ -171,9 +208,10 @@ void MainWindow::restartServer()
     world = World();
     world.sender = incoming;
 
-    connect(incoming, SIGNAL(newPlayer(PlayerId,QString)), SLOT(newPlayer(PlayerId,QString)));
+    connect(incoming, SIGNAL(newPlayer(PlayerId,QString,QString)), SLOT(newPlayer(PlayerId,QString,QString)));
     connect(incoming, SIGNAL(lostPlayer(PlayerId)), SLOT(lostPlayer(PlayerId)));
     connect(incoming, SIGNAL(gotPlayerData(PlayerId,QString)), SLOT(gotPlayerData(PlayerId,QString)));
 
-    ui->lineEdit_2->setText("300");
+    if (ui)
+        ui->lineEdit_2->setText(QString("%1").arg (default_restart_seconds));
 }

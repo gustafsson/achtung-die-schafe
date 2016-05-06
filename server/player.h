@@ -15,7 +15,7 @@ class ISendPlayerData;
 class Player
 {
 public:
-    Player(PlayerId id, QString name);
+    Player(PlayerId id, QString name, QString endpoint);
     
     void tick(float dt);
     void userData(QString data, World*);
@@ -23,6 +23,7 @@ public:
 
     PlayerId id() const { return id_; }
     QString name() const { return name_; }
+    QString endpoint() const { return endpoint_; }
     BoundingBox boundingBox();
 
     float dir; /// newpos = pos + speed*[cos(dir), sin(dir)]
@@ -43,7 +44,7 @@ public:
     void serverMessage(ISendPlayerData*, QString message);
 private:
     PlayerId id_;
-    QString name_;
+    QString name_, endpoint_;
     int wasAlive_;
     int oldScore_;
     bool hadPatch_;

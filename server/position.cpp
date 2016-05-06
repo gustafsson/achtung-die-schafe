@@ -5,6 +5,7 @@
 
 Patch::Patch()
 {
+    pos.reserve (100);
     static unsigned inc = 0;
     inc++;
     id = inc;

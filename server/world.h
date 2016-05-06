@@ -28,7 +28,7 @@ public:
     void timestep(float);
 
     void lostPlayer(PlayerId);
-    void newPlayer(PlayerId,QString);
+    void newPlayer(PlayerId,QString nick,QString endpoint);
 
     Position startPos;
     Players players;

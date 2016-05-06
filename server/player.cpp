@@ -8,9 +8,9 @@
 #define _USE_MATH_DEFINES
 #include "math.h"
 
-Player::Player(PlayerId id, QString name)
+Player::Player(PlayerId id, QString name, QString endpoint)
 :   dir(0), timeSinceVisible(0), currentPatch(0), turningLeft(false), turningRight(false),
-    id_(id), name_(name), wasAlive_(-1), oldScore_(-1), wasDragged_(false)
+    id_(id), name_(name), endpoint_(endpoint), wasAlive_(-1), oldScore_(-1), wasDragged_(false)
 {
     alive = false;
     pos.x = 0;
