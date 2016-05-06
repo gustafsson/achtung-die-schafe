@@ -6,15 +6,19 @@
 
 var game;
 
-
-    location.hash = "#openModal";
+location.hash = "#openModal";
 
 function init(){
-    var scene = new Scene(document.getElementById("myCanvas"));
-    game = new Game(scene);
-
     sheepNr=Math.floor((Math.random()*1000000)+1);
     document.getElementById("nameInput").value="Sheep"+sheepNr;
+
+    reset();
+}
+
+function reset(){
+    $("#content").html('<canvas id="myCanvas" width="800" height="600" style="border:1px solid #c3c3c3;" tabindex="1">Your browser does not support the canvas element.</canvas>');
+    var scene = new Scene(document.getElementById("myCanvas"));
+    game = new Game(scene);
 }
 
 function isMobile() {
@@ -43,7 +47,7 @@ function Game(scene) {
     this.sheep_death_toll = document.getElementById("sheep_death_toll");
     this.count_death=0;
     this.serverMessage = document.getElementById("serverMessage");
-    this.serverMessage.innerHTML = "Achtung, die Schafe... Press play then space to start!";
+    this.serverMessage.innerHTML = "Achtung, die Schafe... Press space to start!";
     this.scene = scene;
 
     this.loadImage(scene.context,"welcome.png",[-400, -300]);
@@ -82,6 +86,12 @@ Game.prototype.start = function() {
             player.action = 'l';
         else if (game.scene.keys[39])
             player.action = 'r';
+
+        if (game.scene.restart_on_next_userinput) {
+            reset();
+            startGame();
+            game.scene.restart_on_next_userinput = false;
+        }
     }
 
     // Listen to touch events and send to server
@@ -373,10 +383,11 @@ Game.prototype.establishConnection = function() {
      };
      this.server.onclose = function()
      {
-        game.serverMessage.innerHTML = "Connection to server lost. Reload the page to reconnect";
+        game.serverMessage.innerHTML = "This round is finished. Press any key to join again.";
          // Stop drawing with a high framerate
+        scene.restart_on_next_userinput = true;
         scene.keep_drawing = false;
-        window.console.log("Connection is closed...");
+        window.console.log("Connection is closed.");
      };
      this.server.onopen = function()
      {
@@ -468,6 +479,8 @@ function Scene(canvas) {
     this.keys = [];
 
     this.keep_drawing = false;
+    this.restart_on_next_userinput = false;
+
     this.prevframe = null;
 
     this.context.lineWidth=10;
@@ -627,10 +640,6 @@ Player.prototype.render = function(ctx, minx, maxx, miny, maxy) {
         } else if (y > maxy) {
             d += y - maxy;
             y = maxy;
-        }
-
-        if (d > 0) {
-            console.log(d);
         }
 
         var r = 1+4/(1 + 0.01*d);

@@ -9,7 +9,7 @@ window.sendMessage = function(text) {
 
 // When the user presses enter on the message input, write the message to firebase.
 $('#messageInput').keypress(function (e) {
-  if (e.keyCode == 13) {
+  if (e.keyCode === 13) {
     var text = $('#messageInput').val();
     sendMessage(text);
   }

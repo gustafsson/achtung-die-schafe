@@ -157,7 +157,9 @@ void Incoming::onDataReceived(QString data)
 
 void Incoming::onPong(quint64 elapsedTime,const QByteArray&)
 {
+#ifdef QT_DEBUG
     Logger::logMessage( "ping: " + QString::number(elapsedTime) + " ms" );
+#endif
 }
 
 

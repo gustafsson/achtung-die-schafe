@@ -9,3 +9,5 @@ Debug/
 Release/
 server.build/
 server.xcodeproj/
+server.app
+win-server
