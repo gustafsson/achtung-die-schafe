@@ -9,7 +9,7 @@ int main(int argc, char *argv[])
 {
 #ifdef NOGUI
     QCoreApplication a(argc, argv);
-    int default_restart_seconds = 13;
+    int default_restart_seconds = 900;
     MainWindow w(true, default_restart_seconds);
 #else
     QApplication a(argc, argv);
