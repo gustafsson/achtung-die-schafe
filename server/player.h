@@ -35,6 +35,8 @@ public:
     unsigned rgba;
     bool alive;
     int score;
+    float boostAmount;
+    bool isBoosting;
 
     qint64 timestamp;
     qint64 playtime;
@@ -42,6 +44,7 @@ public:
     QString serializeIncremental();
     QString serialize();
     void serverMessage(ISendPlayerData*, QString message);
+
 private:
     PlayerId id_;
     QString name_, endpoint_;

@@ -155,12 +155,16 @@ void Incoming::onDataReceived(QString data)
 }
 
 
+#ifdef QT_DEBUG
 void Incoming::onPong(quint64 elapsedTime,const QByteArray&)
 {
-#ifdef QT_DEBUG
     Logger::logMessage( "ping: " + QString::number(elapsedTime) + " ms" );
-#endif
 }
+#else
+void Incoming::onPong(quint64,const QByteArray&)
+{
+}
+#endif
 
 
 void Incoming::onClientDisconnection()

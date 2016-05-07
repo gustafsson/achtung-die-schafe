@@ -32,8 +32,9 @@ public:
 
     Position startPos;
     Players players;
+
 private:
-    bool hasCollisions(const Player&);
+    float hasCollisions(Player&);
 };
 
 #endif // WORLD_H

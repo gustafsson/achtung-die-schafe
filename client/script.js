@@ -87,6 +87,8 @@ Game.prototype.start = function() {
         else if (game.scene.keys[39])
             player.action = 'r';
 
+        player.isBoosting = game.scene.keys[32];
+
         if (game.scene.restart_on_next_userinput) {
             reset();
             startGame();
@@ -620,6 +622,7 @@ function Player(id,color) {
     this.isSelf = false;
     this.score = 0;
     this.gap = true;
+    this.isBoosting = false;
 };
 
 
@@ -663,8 +666,11 @@ Player.prototype.simulate = function(dt) {
         this.dir -= 3.14*dt;
     if (this.action==='r')
         this.dir += 3.14*dt;
+    var speed = 130;
+    if (this.isBoosting===true)
+        speed *= 1.5;
 
-    this.pos[0] += dt*130*Math.cos(this.dir);
-    this.pos[1] += dt*130*Math.sin(this.dir);
+    this.pos[0] += dt*speed*Math.cos(this.dir);
+    this.pos[1] += dt*speed*Math.sin(this.dir);
 };
 

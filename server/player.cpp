@@ -16,6 +16,8 @@ Player::Player(PlayerId id, QString name, QString endpoint)
     pos.x = 0;
     pos.y = 0;
     score = 0;
+    boostAmount = 0.;
+    isBoosting = false;
 
     timestamp = QDateTime::currentDateTime().toMSecsSinceEpoch();
     playtime = 0;
@@ -31,6 +33,13 @@ void Player::tick(float dt)
 {
     float pixelsPerSecond = 130;
     float speed = pixelsPerSecond*100;
+
+    if (isBoosting)
+    {
+        float b = std::min(boostAmount,dt);
+        speed *= 0.7+(b/dt)*0.8; // You can boost to turn sharper!
+        boostAmount -= b;
+    }
 
     if (turningLeft)
         dir -= 3.14*dt;
@@ -59,6 +68,15 @@ void Player::userData(QString data, World*world)
         turningRight = true;
     if (data == "-39")
         turningRight = false;
+
+    if (data == "+32" && alive)
+    {
+        isBoosting = true;
+    }
+    if (data == "-32" && alive)
+    {
+        isBoosting = false;
+    }
 
     if (data == "+32" && !alive)
     {

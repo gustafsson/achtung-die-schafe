@@ -172,7 +172,11 @@ void World::
         if (!p.alive || !p.currentPatch)
             continue;
 
-        if (hasCollisions(p))
+        float d2 = hasCollisions(p);
+        // Should compare against (2*PLAYER_RADIUS)*(2*PLAYER_RADIUS)
+        // but we do want to let player cheat a little in corners to make it tight.
+        bool collision = d2 < 3*PLAYER_RADIUS*PLAYER_RADIUS;
+        if (collision)
         {
             p.alive = false;
             p.serverMessage(sender, "{\"serverMessage\":\"Press space to restart\",\"deathByWall\":true}");
@@ -187,6 +191,11 @@ void World::
                 if (d<SHAFE_DISTANCE*SHAFE_DISTANCE)
                     p2.score++;
             }
+        }
+
+        if (d2 < 3*3*PLAYER_RADIUS*PLAYER_RADIUS)
+        {
+            p.boostAmount = std::min(2.f, p.boostAmount + dt*50.f);
         }
     }
 
@@ -346,10 +355,11 @@ void World::newPlayer(PlayerId id,QString name,QString endpoint)
 }
 
 
-bool World::hasCollisions(const Player& p)
+float World::hasCollisions(Player& p)
 {
-    Position::T dirX = PLAYER_RADIUS * cos(p.dir);
-    Position::T dirY = PLAYER_RADIUS * sin(p.dir);
+    float dirX = PLAYER_RADIUS * cos(p.dir);
+    float dirY = PLAYER_RADIUS * sin(p.dir);
+    float min_d = 100.f*100.f*PLAYER_RADIUS*PLAYER_RADIUS;
 
     Block::Location location(p.pos);
     for (Block::Location::T x = location.x()-1; x<=location.x()+1; ++x)
@@ -361,51 +371,48 @@ bool World::hasCollisions(const Player& p)
 
         for(const Patches::value_type& pv: itr->second->patches)
         {
+            // Skip our own patch
             if (p.currentPatch == pv.second.get())
                 continue;
 
             Patch& patch = *pv.second;
-            if (patch.bb.intersect(p.pos, PLAYER_RADIUS))
+            if (patch.bb.intersect(p.pos, 3*PLAYER_RADIUS))
             {
                 for(unsigned n=0; n<patch.pos.size(); ++n)
                 {
-                    Position::T dx = patch.pos[n].x - p.pos.x;
-                    Position::T dy = patch.pos[n].y - p.pos.y;
+                    float dx = patch.pos[n].x - p.pos.x;
+                    float dy = patch.pos[n].y - p.pos.y;
 
-                    Position::T dot = dx*dirX + dy*dirY;
+                    float dot = dx*dirX + dy*dirY;
                     if (dot <= 0)
                     {
                         // Don't bother with patches behind us (i.e our own patches)
                         continue;
                     }
 
-                    Position::T d = dx*dx + dy*dy;
+                    float d = dx*dx + dy*dy;
                     if (n>0)
                     {
                         if ( d < 8*PLAYER_RADIUS*PLAYER_RADIUS )
                         {
                             // Check for collisions with line segment in between points
                             // Find projection on line segment
-                            Position::T px = patch.pos[n-1].x - patch.pos[n].x;
-                            Position::T py = patch.pos[n-1].y - patch.pos[n].y;
+                            float px = patch.pos[n-1].x - patch.pos[n].x;
+                            float py = patch.pos[n-1].y - patch.pos[n].y;
 
-                            Position::T dx2 = patch.pos[n-1].x - p.pos.x;
-                            Position::T dy2 = patch.pos[n-1].y - p.pos.y;
+                            float dx2 = patch.pos[n-1].x - p.pos.x;
+                            float dy2 = patch.pos[n-1].y - p.pos.y;
 
                             if (dx*px+dy*py < 0 && dx2*px+dy2*py > 0)
                                 d = (dx*py - dy*px)*(dx*py - dy*px)/(px*px + py*py);
                         }
                     }
 
-                    // Should compare against (2*PLAYER_RADIUS)*(2*PLAYER_RADIUS)
-                    // but we do want to let player cheat a little in corners to make it tight.
-                    if (d < 3*PLAYER_RADIUS*PLAYER_RADIUS)
-                    {
-                        return true;
-                    }
+                    min_d = std::min(min_d, d);
                 }
             }
         }
     }
-    return false;
+
+    return min_d;
 }
