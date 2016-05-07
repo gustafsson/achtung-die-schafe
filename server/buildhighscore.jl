@@ -1,5 +1,9 @@
 using DataFrames
-using Base.Dates;
+if VERSION < v"0.4"
+  using Dates;
+else
+  using Base.Dates
+end
 
 fn = length(ARGS) >= 1 ? ARGS[1] : "logfile.txt"
 tostdout = length(ARGS) >= 1 ? ARGS[end] == "-" : false
@@ -22,8 +26,8 @@ d = map(readlines(fn)) do l
   else
     DataFrame( score = parse(Float64, m.captures[1])
              , nick = m.captures[2]
-             , playtime = Float64(Millisecond(DateTime(m.captures[3],"H:M:S")-DateTime()))/1000
-             , alivetime = Float64(Millisecond(DateTime(m.captures[4],"H:M:S")-DateTime()))/1000
+             , playtime = convert(Float64,Millisecond(DateTime(m.captures[3],"H:M:S")-DateTime()))/1000
+             , alivetime = convert(Float64,Millisecond(DateTime(m.captures[4],"H:M:S")-DateTime()))/1000
              , wasactive = m.captures[5] == nothing
              , ip = m.captures[6]
              , timestamp = timestamp
